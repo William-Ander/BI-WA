@@ -1,0 +1,27 @@
+{
+  "version": "3.2.93",
+  "date": "2026-06-02",
+  "name": "v3.2.93 - Instalador sem jsonwebtoken e registry corrigido",
+  "summary": "Remove jsonwebtoken das dependências, corrige package-lock para usar registry público do npm e força o instalador a baixar pacotes de https://registry.npmjs.org/.",
+  "notes": "O PostgreSQL continua opcional. Se estiver indisponível, o app usa MySQL normalmente. O MySQL original não é alterado.",
+  "label": "Instalador corrigido",
+  "description": "Corrige timeout causado por dependência desnecessária e URLs internas no package-lock.",
+  "updatedAt": "2026-06-02T17:31:00.000Z",
+  "title": "Instalador sem jsonwebtoken",
+  "nome": "BI WA v3.2.93 - Instalador corrigido",
+  "descricao": "Remove jsonwebtoken e força registry público no npm install para evitar ETIMEDOUT em URLs internas.",
+  "highlights": [
+    "Remove jsonwebtoken das dependências obrigatórias",
+    "Remove jsonwebtoken da verificação do instalador",
+    "Corrige URLs internas do package-lock para registry.npmjs.org",
+    "Adiciona .npmrc com registry público",
+    "Força npm install com --registry=https://registry.npmjs.org/",
+    "Mantém PostgreSQL cache e fallback MySQL"
+  ],
+  "changes": [
+    "Atualiza package.json e package-lock",
+    "Remove módulos JWT desnecessários",
+    "Ajusta instalar_bi_wa.bat para não baixar jsonwebtoken",
+    "Adiciona .npmrc"
+  ]
+}

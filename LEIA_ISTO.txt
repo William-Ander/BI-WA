@@ -1,0 +1,74 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║         ⚠️  AS MUDANÇAS ESTÃO PRONTAS MAS EM CACHE ⚠️          ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+
+😤 PROBLEMA:
+═══════════════════════════════════════════════════════════════
+Os arquivos ESTÃO atualizados, mas o navegador está usando
+a versão ANTIGA que ficou em cache (memória).
+
+
+✅ SOLUÇÃO GARANTIDA:
+═══════════════════════════════════════════════════════════════
+
+    🖱️  Dê DUPLO CLIQUE em:
+    
+    📄  LIMPAR_E_REINICIAR.bat
+    
+    (Este script vai apagar o cache e reiniciar)
+
+
+O QUE ELE FAZ:
+───────────────────────────────────────────────────────────────
+✓ Para o servidor Node.js
+✓ Fecha o navegador
+✓ APAGA a pasta browser-profile-biwa (cache antigo)
+✓ Verifica se os arquivos estão atualizados
+✓ Reinicia o servidor
+✓ Abre o navegador COM CACHE LIMPO
+
+
+═══════════════════════════════════════════════════════════════
+📋 SE PREFERIR FAZER MANUALMENTE:
+═══════════════════════════════════════════════════════════════
+
+1. Feche o app BI WA
+2. Pare o servidor Node.js (Ctrl+C no terminal)
+3. APAGUE a pasta: browser-profile-biwa
+4. Inicie o servidor: node server.js
+5. Abra o navegador e vá em: http://localhost:3000/?v=3.3.0
+6. Pressione: Ctrl + Shift + Delete
+7. Marque: "Imagens e arquivos em cache"
+8. Clique: "Limpar dados"
+
+
+═══════════════════════════════════════════════════════════════
+🔍 VERIFICAR SE AS MUDANÇAS APARECERAM:
+═══════════════════════════════════════════════════════════════
+
+Vá em "Transformar Dados" e veja:
+
+✓ Tabela de prévia deve ter CÉLULAS PEQUENAS
+✓ Etapas sem quebra de linha
+✓ Ao dar duplo clique em filtro, modal mostra:
+  "100 valor(es) | 5 selecionado(s)"
+
+
+═══════════════════════════════════════════════════════════════
+💡 POR QUE ISSO ACONTECE?
+═══════════════════════════════════════════════════════════════
+
+O navegador guarda os arquivos CSS e JS na memória (cache)
+para carregar mais rápido. Mesmo com Ctrl+Shift+R, o PERFIL
+do navegador (browser-profile-biwa) mantém cache persistente.
+
+SOLUÇÃO: Apagar a pasta browser-profile-biwa força o navegador
+a criar um perfil NOVO sem nenhum cache antigo.
+
+
+═══════════════════════════════════════════════════════════════
+
+Tente agora! 🚀

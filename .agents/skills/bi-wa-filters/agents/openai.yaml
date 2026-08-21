@@ -1,0 +1,5 @@
+interface:
+  display_name: "BI WA Filters"
+  short_description: "Mantém filtros, cascata, Calendário e RLS"
+  default_prompt: "Use $bi-wa-filters para rastrear e corrigir este fluxo de filtros do BI WA."
+

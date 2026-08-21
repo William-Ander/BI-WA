@@ -1,0 +1,5 @@
+interface:
+  display_name: "BI WA Performance"
+  short_description: "Diagnostica cache, queries e concorrência do BI WA"
+  default_prompt: "Use $bi-wa-performance para medir e otimizar este fluxo lento do BI WA."
+

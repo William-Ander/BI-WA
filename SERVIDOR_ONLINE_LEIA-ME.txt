@@ -1,0 +1,57 @@
+BI WA - SERVIDOR ONLINE SEM CMD ABERTO
+=====================================
+
+INSTALACAO RECOMENDADA
+1. Copie esta pasta para um local fixo, por exemplo C:\BIWA-Online.
+2. Instale o Node.js 20 LTS no servidor.
+3. Execute "instalar_postgresql_cache_bi_wa.bat" como Administrador se o PostgreSQL local ainda nao estiver configurado.
+   Se ocorrer erro de senha 28P01, execute "Configurar PostgreSQL do Servidor.bat" e defina uma nova senha administrativa.
+4. Configure o arquivo .env. Se ele ainda nao existir, o instalador cria a partir de CONFIGURACAO_INICIAL.env.
+   O pacote gerado pelo Desktop ja leva a conexao MySQL de origem e a janela incremental.
+5. Execute "BI WA Servidor Online.exe" e confirme a permissao de administrador.
+6. O servico "BI WA Servidor Online" sera iniciado automaticamente.
+7. Execute "Configurar HTTPS Cloudflare.bat" como Administrador.
+8. Cole o token do Tunnel mostrado na Cloudflare. O token nao e salvo pelo instalador.
+
+DEPOIS DA INSTALACAO
+- Nao e necessario deixar CMD ou PowerShell aberto.
+- O portal inicia junto com o Windows, mesmo antes de algum usuario entrar.
+- Se o processo do portal cair, o servico tenta inicia-lo novamente em 5 segundos.
+- O Windows tambem esta configurado para recuperar o servico em caso de falha.
+- O proprio servidor consulta o MySQL e atualiza o PostgreSQL; o Desktop pode permanecer desligado.
+- BIWA_PG_CACHE_HOST deve permanecer 127.0.0.1 para o cache nao depender do IP de outra maquina.
+- A rotina e executada somente no APP_MODE=online quando BIWA_PG_CACHE_SYNC_OWNER=server.
+
+GERENCIAMENTO
+Use "Gerenciar Servico BI WA.bat" para consultar, iniciar, parar, reiniciar ou remover.
+
+HTTPS CLOUDFLARE
+- O endereco publico oficial e https://biwaonline.com.
+- O servico Cloudflared inicia automaticamente com o Windows.
+- O Tunnel funciona em qualquer rede sem NAT Loopback e sem abrir portas de entrada.
+- Para consultar o servico execute:
+  powershell -ExecutionPolicy Bypass -File configurar_cloudflare_tunnel.ps1 -SomenteStatus
+
+ENDERECO PADRAO
+https://biwaonline.com
+
+LOGS
+logs\biwa-service.log
+
+VALIDACAO DA ATUALIZACAO
+- Use "Gerenciar Servico BI WA.bat" para instalar ou reiniciar; ele valida automaticamente as conexoes.
+- O diagnostico protegido esta em /api/sync/health e exige o cabecalho X-Sync-Token.
+- database.connected deve ser true.
+- pgCache.connected deve ser true.
+- pgCache.scheduler.enabled deve ser true e owner deve ser server.
+
+ATUALIZACAO
+Substitua os arquivos do pacote e execute novamente "BI WA Servidor Online.exe".
+O instalador para, atualiza a configuracao e reinicia o servico sem apagar .env ou dados.
+O pacote nao leva arquivos ativos dentro de data e nunca substitui o .env existente.
+
+IMPORTANTE
+- Nao instale dentro de uma pasta temporaria.
+- Evite Desktop sincronizado com OneDrive.
+- Depois de validar o Tunnel, remova o redirecionamento publico da porta 3000 no roteador.
+- Mantenha o portal local em 127.0.0.1:3000 para o Cloudflared acessar com seguranca.

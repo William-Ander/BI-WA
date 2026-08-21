@@ -1,0 +1,103 @@
+# Dependencies
+node_modules/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+!.env.cloud.example
+!.env.online.example
+!python_backend/.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+
+# BI WA local persistence and runtime state
+/data/*
+!/data/settings.example.json
+/_backup_dados_bi_wa/
+/instalar no servidor/
+
+# Logs and diagnostics
+/logs/
+*.log
+*.log.*
+*.out
+*.err
+/diagnostic_log.json
+/dependent_validation_output.json
+npm-debug.log*
+
+# Temporary files and test processes
+/.codex-tmp/
+/.tmp-*/
+*.tmp
+*.temp
+*.swp
+*~
+
+# Local diagnostic scripts with embedded connection credentials
+/test_pg*.js
+/test_syntax.js
+/scripts/check_meta.js
+/scripts/final_check.js
+/scripts/fix-sync-column.js
+
+# Generated or local-only validation evidence
+/test-evidence/
+/Prints/
+
+# Local deployment material containing environment-specific endpoints
+/powerpages-templates/
+
+# Local validation fixture containing user-derived identity data
+/scripts/validate-online-user-publish-merge.js
+
+# Build and packaged artifacts
+/dist/
+/dist-server/
+/dist-windows/
+/build/
+/coverage/
+*.zip
+*.7z
+*.rar
+*.tar
+*.tgz
+*.gz
+
+# Database dumps and local databases
+*.sql
+*.dump
+*.bak
+*.bkp
+*.db
+*.sqlite
+*.sqlite3
+
+# Python generated files and virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Editor and operating-system metadata
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Stray zero-byte/local command artifacts
+/({id
+/({name
+/{const
+/Online

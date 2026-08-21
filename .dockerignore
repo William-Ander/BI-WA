@@ -1,0 +1,20 @@
+# BI WA — Docker ignore
+.env
+.env.*
+node_modules
+*.log
+browser-profile-*
+dist
+build
+.git
+.gitignore
+*.md
+_backup*
+desktop/
+python_backend/
+logs/
+.vscode/
+.idea/
+*.bat
+*.exe
+*.zip

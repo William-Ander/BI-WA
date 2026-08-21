@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "tableWrites": false,
+    "schemaChanges": false,
+    "reportEditing": true,
+    "publishOnline": false
+  },
+  "access": {
+    "adminUser": "admin",
+    "adminPassword": "TROQUE_ANTES_DE_USAR",
+    "viewerUser": "viewer",
+    "viewerPassword": "TROQUE_ANTES_DE_USAR",
+    "onlineUsers": []
+  },
+  "database": {
+    "connectionPath": "direct",
+    "mysqlHost": "127.0.0.1",
+    "mysqlPort": "3306",
+    "mysqlUser": "usuario_bi",
+    "mysqlPassword": "TROQUE_ANTES_DE_USAR",
+    "mysqlDatabase": "nome_do_banco",
+    "mysqlSsl": "false",
+    "connectionLimit": "10"
+  },
+  "publish": {
+    "onlineUrl": "",
+    "syncToken": "TROQUE_ANTES_DE_USAR"
+  },
+  "web": {
+    "port": "3000",
+    "mysqlHost": "127.0.0.1",
+    "mysqlPort": "3306",
+    "mysqlUser": "bi_viewer",
+    "mysqlPassword": "TROQUE_ANTES_DE_USAR",
+    "mysqlDatabase": "nome_do_banco",
+    "mysqlSsl": "false",
+    "corsOrigin": "",
+    "defaultRefreshSeconds": "15",
+    "serverPushIntervalSeconds": "15"
+  }
+}

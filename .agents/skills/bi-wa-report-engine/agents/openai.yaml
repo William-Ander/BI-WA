@@ -1,0 +1,5 @@
+interface:
+  display_name: "BI WA Report Engine"
+  short_description: "Mantém editor, visuais e runtime de relatórios"
+  default_prompt: "Use $bi-wa-report-engine para alterar este fluxo de relatório do BI WA sem quebrar compatibilidade."
+

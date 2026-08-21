@@ -1,0 +1,166 @@
+ATUALIZACAO DO BI WA NO SERVIDOR
+================================
+
+OBJETIVO
+--------
+Atualizar o aplicativo criado nesta maquina sem apagar configuracoes, usuarios,
+permissoes, relatorios publicados ou dados armazenados no servidor.
+
+O portal continuara online e atualizando mesmo com a maquina de desenvolvimento
+desligada, desde que estes servicos estejam ativos no servidor:
+
+- BIWAServerOnline
+- Cloudflared
+- PostgreSQL
+
+O arquivo .env do servidor deve manter:
+
+- BIWA_PG_CACHE_SYNC_OWNER=server
+- BIWA_PG_CACHE_STARTUP_SYNC=true
+- BIWA_PG_CACHE_HOST=127.0.0.1
+
+PROTECAO CONTRA BLOQUEIO DO MYSQL (VERSAO 3.4.22 OU SUPERIOR)
+----------------------------------------------------------------
+Quando o MySQL recusar usuario/senha, o BI WA faz somente uma tentativa para
+aquela credencial. O monitor e a sincronizacao automatica ficam protegidos e
+nao repetem a senha para cada tabela ou a cada reinicio.
+
+A protecao e persistida em data\mysql_auth_guard.json. O portal continua
+funcionando com o cache PostgreSQL enquanto a origem MySQL e corrigida.
+
+- Se usuario ou senha forem alterados, a nova credencial libera uma unica
+  tentativa automaticamente.
+- Se o IP/usuario for desbloqueado mantendo exatamente a mesma senha, entre
+  como administrador e clique em "Atualizar agora" no Dashboard. O botao
+  libera uma unica tentativa e, se o acesso estiver correto, executa a
+  sincronizacao e religa o agendador automaticamente.
+- Se a tentativa manual for recusada, novos cliques ficam protegidos por um
+  intervalo de seguranca. Consulte Configuracao > Monitoramento e Logs antes de
+  tentar novamente.
+- Nunca teste a mesma senha recusada varias vezes.
+
+
+1. GERAR O PACOTE NESTA MAQUINA
+-------------------------------
+Abra o PowerShell na pasta do projeto e execute:
+
+cd "C:\Antigravity\PROJETO BI WA\BI WA"
+npm run package:server
+
+O pacote sera criado em:
+
+C:\Antigravity\PROJETO BI WA\BI WA\instalar no servidor
+
+
+2. ARQUIVOS QUE DEVEM SER ATUALIZADOS NO SERVIDOR
+--------------------------------------------------
+Copie para a pasta atual do BI WA no servidor:
+
+- server.js
+- pasta public
+- pasta lib
+- package.json
+- package-lock.json
+- BI WA Servidor Online.exe
+- pasta dados-iniciais-publicacao
+- arquivos .ps1 e .bat, quando existirem alteracoes nesses arquivos
+- este arquivo ATUALIZAR_SERVIDOR_BI_WA.txt
+
+O pacote atual nao inclui .env nem arquivos ativos de relatorios/configuracoes
+dentro de data. Assim, mesmo ao copiar a pasta completa, os dados existentes
+no servidor nao sao substituidos. O arquivo CONFIGURACAO_INICIAL.env e usado
+somente quando ainda nao existe .env no destino.
+
+A pasta dados-iniciais-publicacao deve acompanhar esta atualizacao. Ela contem
+somente seeds versionados: transformacoes ausentes e snapshots de tabelas
+manuais. No inicio, o servidor adiciona apenas itens que ainda nao existem;
+nao substitui transformacoes nem tabelas manuais ja registradas no destino.
+
+
+3. NAO SUBSTITUIR OU APAGAR
+---------------------------
+Nunca substitua ou apague estes itens existentes no servidor:
+
+- .env
+- pasta data
+- pasta logs
+- pasta node_modules
+- banco de dados PostgreSQL
+- configuracao e token do Cloudflared
+
+Esses itens guardam conexoes, senhas, usuarios, permissoes, configuracoes,
+relatorios publicados, historico e dados do servidor.
+
+Antes de uma atualizacao importante, faca uma copia de seguranca do arquivo
+.env e da pasta data.
+
+
+4. ATUALIZAR O SERVIDOR
+-----------------------
+Abra o PowerShell como Administrador no servidor.
+
+Pare somente o portal BI WA:
+
+Stop-Service BIWAServerOnline -Force
+
+Nao pare o PostgreSQL e nao pare o Cloudflared.
+
+Copie os arquivos da atualizacao para a pasta definitiva do BI WA no servidor,
+incluindo dados-iniciais-publicacao, mas sem copiar .env, data, logs ou
+node_modules.
+
+Entre na pasta do BI WA no servidor. Exemplo:
+
+cd "C:\BI WA Online"
+
+Atualize as dependencias:
+
+npm install --omit=dev
+
+Depois execute "BI WA Servidor Online.exe" como Administrador. O instalador
+atualizara e iniciara novamente o servico automatico.
+
+
+5. PUBLICAR RELATORIOS E PERMISSOES
+-----------------------------------
+Alteracoes em relatorios, visuais, modelo, tabelas manuais, usuarios e permissoes devem ser
+enviadas pelo botao "Publicar Online" dentro do aplicativo.
+
+Os seeds do pacote atendem apenas itens ausentes no servidor. Para alterar uma
+transformacao ou tabela manual que ja exista online, continue usando
+"Publicar Online"; isso evita sobrescrever configuracoes do destino pelo
+conteudo do instalador.
+
+Nao copie manualmente a pasta data da maquina de desenvolvimento para o
+servidor, pois isso pode substituir dados e configuracoes mais recentes.
+
+Depois de atualizar uma versao com mudancas de usuarios, permissoes ou modelo,
+publique o relatorio online novamente pelo aplicativo.
+
+
+6. VALIDAR DEPOIS DA ATUALIZACAO
+--------------------------------
+No PowerShell do servidor, execute:
+
+Get-Service BIWAServerOnline, Cloudflared
+
+Os dois servicos devem aparecer como Running.
+
+Tambem confirme:
+
+- O portal abre em https://biwaonline.com
+- O login administrativo funciona
+- Um usuario visualizador consegue entrar
+- Os relatorios respeitam as permissoes do usuario
+- O indicador de dados mostra o estado correto da atualizacao
+- A versao atual responde em https://biwaonline.com/api/version
+
+
+7. OBSERVACOES IMPORTANTES
+--------------------------
+- A atualizacao pode deixar o portal indisponivel por alguns segundos.
+- O Cloudflared reconecta automaticamente quando o BI WA reinicia.
+- O servidor nao deve entrar em suspensao.
+- O MySQL de origem precisa estar acessivel pelo servidor para receber dados
+  novos. Se ele ficar offline, o portal continua usando o cache PostgreSQL.
+- Nunca envie ou anote senhas e tokens do servidor neste arquivo.

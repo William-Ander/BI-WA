@@ -1,0 +1,5 @@
+interface:
+  display_name: "BI WA DAX"
+  short_description: "Compila e diagnostica medidas DAX do BI WA"
+  default_prompt: "Use $bi-wa-dax para analisar esta medida e preservar o pipeline semântico do BI WA."
+

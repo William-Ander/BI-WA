@@ -1,0 +1,5 @@
+interface:
+  display_name: "BI WA Production Safety"
+  short_description: "Protege dados, permissões e produção do BI WA"
+  default_prompt: "Use $bi-wa-production-safety para avaliar e executar esta alteração operacional do BI WA com segurança."
+

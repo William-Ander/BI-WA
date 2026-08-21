@@ -1,0 +1,5 @@
+interface:
+  display_name: "BI WA QA"
+  short_description: "Seleciona e executa regressões seguras do BI WA"
+  default_prompt: "Use $bi-wa-qa para montar e executar um plano de validação seguro para esta mudança."
+

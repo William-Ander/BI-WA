@@ -1,0 +1,37 @@
+services:
+  rl-mysql-bi:
+    build: .
+    container_name: rl-mysql-bi
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: biwa-postgres
+    environment:
+      POSTGRES_DB: bi_wa_cache
+      POSTGRES_USER: biwa_cache
+      POSTGRES_PASSWORD: biwa_cache
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-config/init-pghba.sh:/docker-entrypoint-initdb.d/init-pghba.sh
+    command: ["postgres", "-c", "listen_addresses=*"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U biwa_cache -d bi_wa_cache"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:

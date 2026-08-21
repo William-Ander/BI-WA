@@ -1,0 +1,2079 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BI WA</title>
+  <link rel="icon" type="image/x-icon" href="/app-icon.ico?v=3.3.0" />
+  <link rel="manifest" href="/manifest.json?v=3.3.0" />
+  <link rel="apple-touch-icon" href="/logo-bi-wa.png" />
+  <link rel="stylesheet" href="/styles.css?v=__BIWA_ASSET_VERSION__" />
+</head>
+<body>
+  <div id="loginScreen" class="login-screen" hidden>
+    <form id="loginForm" class="login-card">
+      <img src="/logo-bi-wa.png" alt="BI WA" class="login-logo" />
+      <p class="eyebrow">Portal BI WA</p>
+      <div class="login-access-switch" role="tablist" aria-label="Tipo de acesso">
+        <button id="loginViewerModeBtn" class="login-access-option active" type="button" role="tab" aria-selected="true" data-login-access="viewer">Visualização</button>
+        <button id="loginAdminModeBtn" class="login-access-option" type="button" role="tab" aria-selected="false" data-login-access="admin">Acesso admin</button>
+      </div>
+      <input id="loginAccessMode" type="hidden" value="viewer" />
+      <h1 id="loginTitle">Acessar relatórios</h1>
+      <p id="loginSubtitle" class="sub">Entre com o usuário liberado para visualizar seus dashboards.</p>
+      <label for="loginUser">Usuário<input id="loginUser" autocomplete="username" placeholder="seu usuário" required /></label>
+      <label for="loginPassword">Senha<input id="loginPassword" type="password" autocomplete="current-password" placeholder="sua senha" required /></label>
+      <button id="loginSubmitBtn" class="btn primary full" type="submit">Entrar</button>
+      <p id="loginError" class="sub warn-text" hidden></p>
+    </form>
+  </div>
+
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand brand-pro brand-logo-only">
+          <img class="brand-logo" src="/logo-bi-wa.png" alt="Logo do BI WA" />
+          <div class="brand-copy brand-status-only">
+            <div class="brand-meta">
+              <span id="modeBadge" class="badge status-chip">Admin</span>
+              <span id="versionBadge" class="version-badge">versao</span>
+            </div>
+            <p id="dbStatus" class="db-status">Banco: conectando...</p>
+          </div>
+        </div>
+
+        <button id="sidebarCollapseBtn" class="sidebar-collapse-btn" type="button" title="Recolher menu lateral">
+          <span class="collapse-icon">☰</span>
+          <span class="collapse-label">Recolher menu</span>
+        </button>
+        <button class="sidebar-account-button" type="button" data-user-menu-toggle title="Abrir opções do perfil" aria-label="Abrir opções do perfil">
+          <span class="user-avatar" data-user-avatar>U</span>
+          <span class="sidebar-account-copy"><b data-user-display-name>Usuário</b><small>Perfil</small></span>
+        </button>
+      </div>
+
+      <div class="sidebar-scroll">
+        <nav class="nav">
+          <button class="nav-btn active" data-tab="dashboardTab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13h6v7H4v-7Zm10-9h6v16h-6V4ZM4 4h6v7H4V4Z"/></svg></span><span class="nav-label">Dashboard</span></button>
+          <button class="nav-btn" data-admin-only data-tab="sqlTab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></span><span class="nav-label">Construtor</span></button>
+          <button class="nav-btn" data-admin-only data-tab="tablesTab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4V5Zm2 2v3h4V7H6Zm6 0v3h6V7h-6ZM6 12v5h4v-5H6Zm6 0v5h6v-5h-6Z"/></svg></span><span class="nav-label">Visualização</span></button>
+          <button class="nav-btn" data-admin-only data-tab="modelTab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h6v6H5V4Zm8 0h6v6h-6V4ZM5 14h6v6H5v-6Zm8 0h6v6h-6v-6Zm-2-3h2v2h-2v-2Z"/></svg></span><span class="nav-label">Modelo</span></button>
+          <button class="nav-btn" data-admin-only data-tab="connectionsTab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8.5 12a3.5 3.5 0 0 1 3.5-3.5h3v2h-3a1.5 1.5 0 0 0 0 3h3v2h-3A3.5 3.5 0 0 1 8.5 12Zm4.5 1h-2v-2h2v2Zm-4 2.5H6a3.5 3.5 0 1 1 0-7h3v2H6a1.5 1.5 0 0 0 0 3h3v2Zm6-7h3a3.5 3.5 0 1 1 0 7h-3v-2h3a1.5 1.5 0 0 0 0-3h-3v-2Z"/></svg></span><span class="nav-label">Conexões</span></button>
+          <button class="nav-btn" data-admin-only data-tab="transformTab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v2H4V5Zm3 6h10v2H7v-2Zm3 6h4v2h-4v-2Zm8-7 3 2-3 2v-4ZM6 10l-3 2 3 2v-4Z"/></svg></span><span class="nav-label">Transformar</span></button>
+          <button class="nav-btn" data-admin-only data-tab="schemaTab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v3H4V5Zm0 5h7v9H4v-9Zm9 0h7v4h-7v-4Zm0 6h7v3h-7v-3Z"/></svg></span><span class="nav-label">Inserir Dados</span></button>
+          <button class="nav-btn" data-admin-only data-tab="onlineTab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="nav-label">Online</span></button>
+          <button class="nav-btn" data-admin-only data-tab="historyTab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.9 3.9L8.8 12H6a7 7 0 1 1 7 7c-1.9 0-3.7-.8-5-2.1l-1.4 1.4A9 9 0 1 0 13 3Zm-1 4v5l4.3 2.5.7-1.2-3.5-2.1V7H12Z"/></svg></span><span class="nav-label">Histórico</span></button>
+          <button class="nav-btn" data-admin-only data-tab="settingsTab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19.4 13.5a7.8 7.8 0 0 0 .1-1.5 7.8 7.8 0 0 0-.1-1.5l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-2.5-1.5L14.2 2h-4l-.4 2.6a7.6 7.6 0 0 0-2.5 1.5l-2.4-1-2 3.4 2 1.5A7.8 7.8 0 0 0 4.8 12c0 .5 0 1 .1 1.5l-2 1.5 2 3.4 2.4-1a7.6 7.6 0 0 0 2.5 1.5l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 2.5-1.5l2.4 1 2-3.4-2.1-1.5ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7Z"/></svg></span><span class="nav-label">Configuração</span></button>
+        </nav>
+        <div class="sidebar-footer">
+          <button id="logoutBtn" class="sidebar-logout" type="button" title="Sair e trocar o tipo de acesso" aria-label="Sair">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg>
+            <span>Sair</span>
+          </button>
+          <span>Powered by WA Soluções</span>
+        </div>
+      </div>
+    </aside>
+
+    <button id="sidebarExpandFab" class="sidebar-expand-fab" type="button" title="Expandir menu lateral" aria-label="Expandir menu lateral">☰</button>
+
+    <main class="main">
+      <section id="dashboardTab" class="tab active">
+        <div class="page-head page-head-dark">
+          <div>
+            <span class="page-head-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 13h6v7H4v-7Zm10-9h6v16h-6V4ZM4 4h6v7H4V4Z"/></svg></span>
+            <h2>Dashboard</h2>
+            <span id="dashboardHelp" hidden></span>
+          </div>
+          <div class="dashboard-refresh-actions">
+            <button id="refreshDashboardBtn" class="btn primary">Atualizar agora</button>
+            <div id="dashboardLastUpdate" class="last-update-badge" title="Status da conexao com o banco de dados">
+              Conectando...
+            </div>
+            <button class="header-user-button" type="button" data-user-menu-toggle title="Abrir opções do perfil" aria-label="Abrir opções do perfil">
+              <span class="user-avatar" data-user-avatar>U</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="dashboardGrid" class="dashboard-grid"></div>
+      </section>
+
+
+      <section id="connectionsTab" class="tab" data-admin-only>
+        <div class="page-head page-head-dark">
+          <div>
+            <span class="page-head-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 12a3.5 3.5 0 0 1 3.5-3.5h3v2h-3a1.5 1.5 0 0 0 0 3h3v2h-3A3.5 3.5 0 0 1 8.5 12Zm4.5 1h-2v-2h2v2Zm-4 2.5H6a3.5 3.5 0 1 1 0-7h3v2H6a1.5 1.5 0 0 0 0 3h3v2Zm6-7h3a3.5 3.5 0 1 1 0 7h-3v-2h3a1.5 1.5 0 0 0 0-3h-3v-2Z"/></svg></span>
+            <h2>Conexões</h2>
+          </div>
+          <div class="actions wrap">
+            <button id="reloadConnectionsBtn" class="btn ghost">Recarregar tabelas/views</button>
+            <button id="showRelationshipsBtn" class="btn ghost">Relacionamentos</button>
+            <button id="saveConnectionsModelBtn" class="btn primary">Salvar conexoes</button>
+          </div>
+        </div>
+        <div class="connections-layout" id="connectionsLayout">
+          <aside class="connections-panel connections-resource-panel" id="connectionsResourcePanel">
+            <div class="panel-head compact-head"><h3>Tabelas</h3><button class="pane-collapse-btn mini-collapse" type="button" data-collapse-connection-panel="resources" title="Recuar/expandir Tabelas">«</button></div>
+            <div id="connectionResourceList" class="connection-resource-list empty-state">Carregando tabelas...</div>
+          </aside>
+          <div class="connections-canvas-panel">
+            <div class="panel-head compact-head"><h3>Modelo visual</h3><button id="fullscreenModelBtn" class="pane-collapse-btn mini-collapse" type="button" title="Expandir/recolher tela cheia">⛶</button></div>
+            <div id="connectionDiagram" class="connection-diagram empty-state connection-drop-zone">Arraste tabelas/views para cá para montar o modelo.</div>
+          </div>
+          <aside class="connections-panel relationship-builder-panel" id="connectionsRelationshipPanel">
+            <div class="panel-head compact-head"><h3>Editar relacionamento</h3><button class="pane-collapse-btn mini-collapse" type="button" data-collapse-connection-panel="relationship" title="Recuar/expandir Editar relacionamento">»</button></div>
+            <div id="connRelationshipEdit" class="empty-state small">Selecione um relacionamento no diagrama ou no modal.</div>
+          </aside>
+        </div>
+      </section>
+
+
+      <section id="transformTab" class="tab" data-admin-only>
+        <div class="transform-shell">
+          <div class="transform-topbar page-head-dark">
+            <div>
+              <span class="page-head-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v2H4V5Zm3 6h10v2H7v-2Zm3 6h4v2h-4v-2Zm8-7 3 2-3 2v-4ZM6 10l-3 2 3 2v-4Z"/></svg></span>
+              <h2>Transformar</h2>
+            </div>
+            <div class="actions wrap">
+              <button id="previewTransformBtn" class="btn primary">Prévia final</button>
+              <button id="saveTransformBtn" class="btn secondary">Aplicar na tabela</button>
+              <button id="clearTransformBtn" class="btn ghost">Nova tabela DAX</button>
+            </div>
+          </div>
+
+          <div class="transform-ribbon" id="transformRibbon" aria-label="Painel superior de transformação">
+            <div class="transform-ribbon-head">
+              <div class="transform-source-controls">
+                <label>Tabela/View origem<select id="transformSourceSelect"></select></label>
+                <label>Linhas da prévia<input id="transformLimit" type="number" min="10" value="200" /></label>
+              </div>
+              <div class="transform-ribbon-tabs" role="tablist" aria-label="Ferramentas de transformação">
+                <button class="transform-ribbon-tab active" type="button" role="tab" aria-selected="true" data-transform-ribbon-tab="query">Consulta</button>
+                <button class="transform-ribbon-tab" type="button" role="tab" aria-selected="false" data-transform-ribbon-tab="transform">Transformar</button>
+                <button class="transform-ribbon-tab" type="button" role="tab" aria-selected="false" data-transform-ribbon-tab="add">Adicionar coluna</button>
+                <button class="transform-ribbon-tab" type="button" role="tab" aria-selected="false" data-transform-ribbon-tab="combine">Combinar</button>
+                <button class="transform-ribbon-tab" type="button" role="tab" aria-selected="false" data-transform-ribbon-tab="format">Formatação</button>
+              </div>
+            </div>
+
+            <div class="transform-ribbon-content">
+              <div class="transform-ribbon-panel active" role="tabpanel" data-transform-ribbon-panel="query">
+                <button class="btn ghost" data-transform-action="selectColumns">Selecionar colunas</button>
+                <button class="btn ghost" data-transform-action="removeColumns">Remover colunas</button>
+                <button class="btn ghost" data-transform-action="renameColumn">Renomear coluna</button>
+                <button class="btn ghost" data-transform-action="filterRows">Filtrar linhas</button>
+                <button class="btn ghost" data-transform-action="filterDate">Filtrar data</button>
+                <button class="btn ghost" data-transform-action="sortRows">Ordenar</button>
+                <button class="btn ghost" data-transform-action="removeDuplicates">Remover duplicados</button>
+              </div>
+              <div class="transform-ribbon-panel" role="tabpanel" data-transform-ribbon-panel="transform" hidden>
+                <button class="btn ghost" data-transform-action="replaceValues">Substituir valores</button>
+                <button class="btn ghost" data-transform-action="duplicateColumn">Duplicar coluna</button>
+                <button class="btn ghost" data-transform-action="splitColumn">Dividir coluna</button>
+                <button class="btn ghost" data-transform-action="formatText">Formatar texto</button>
+                <button class="btn ghost" data-transform-action="groupBy">Agrupar por</button>
+              </div>
+              <div class="transform-ribbon-panel" role="tabpanel" data-transform-ribbon-panel="add" hidden>
+                <button class="btn primary" data-transform-action="daxColumn">Coluna calculada DAX</button>
+                <button class="btn ghost" data-transform-action="fillValues">Preencher valores vazios</button>
+              </div>
+              <div class="transform-ribbon-panel" role="tabpanel" data-transform-ribbon-panel="combine" hidden>
+                <button class="btn ghost" data-transform-action="mergeQueries">Mesclar consultas</button>
+                <button class="btn ghost" data-transform-action="appendQueries">Acrescentar consultas</button>
+              </div>
+              <div class="transform-ribbon-panel transform-ribbon-format" id="transformFormatPanel" role="tabpanel" data-transform-ribbon-panel="format" hidden>
+                <div class="format-row" id="formatPanelBody">
+                  <label>Coluna<select id="formatColumnSelect"><option value="">Selecione...</option></select></label>
+                  <label>Tipo de dados<select id="formatDataTypeSelect">
+                    <option value="">Selecione...</option>
+                    <option value="inteiro">Número Inteiro</option>
+                    <option value="decimal">Número Decimal Fixo</option>
+                    <option value="datetime">Data/Hora</option>
+                    <option value="data">Data</option>
+                    <option value="hora">Hora</option>
+                    <option value="texto">Texto</option>
+                    <option value="bool">True/False</option>
+                    <option value="binario">Binário</option>
+                  </select></label>
+                  <label>Formato<select id="formatStyleSelect"><option value="">Selecione um tipo primeiro...</option></select></label>
+                  <button id="applyFormatBtn" class="btn primary" type="button">Aplicar formatação</button>
+                  <button id="formatHistoryBtn" class="btn ghost" type="button" title="Ver histórico de formatações">Histórico</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="transform-layout">
+            <section class="transform-center panel compact-panel">
+              <div class="panel-head compact-head"><h3>Prévia dos dados</h3><span id="transformMeta" class="meta">aguardando</span></div><div class="mini-help">A prévia recalcula automaticamente. Clique em uma etapa para ver o resultado até ela.</div>
+              <div id="transformPreview" class="result transform-preview empty-state">Selecione uma origem e adicione etapas para ver a prévia.</div>
+            </section>
+
+            <aside class="transform-right panel compact-panel">
+              <h3>Etapas aplicadas</h3><p class="mini-help">Fonte + etapas. Clique para prévia, use ↑ ↓ para reorganizar.</p>
+              <div id="transformStepsList" class="steps-list empty-state">Nenhuma etapa aplicada.</div>
+              <details class="transform-sql-details">
+                <summary>SQL gerado</summary>
+                <textarea id="transformSqlPreview" readonly spellcheck="false"></textarea>
+              </details>
+              <h3>Consultas salvas</h3>
+              <div id="savedTransformsList" class="steps-list empty-state">Nenhuma consulta salva.</div>
+            </aside>
+          </div>
+        </div>
+
+        <div id="transformStepModal" class="modal hidden">
+          <div class="modal-card transform-modal-card">
+            <button id="closeTransformStepModalBtn" class="modal-close" type="button">×</button>
+            <p class="eyebrow">Etapa Power Query</p>
+            <h3 id="transformStepTitle">Adicionar etapa</h3>
+            <div id="transformStepForm" class="transform-step-form"></div>
+            <div class="actions right"><button id="applyTransformStepBtn" class="btn primary">Aplicar etapa</button></div>
+          </div>
+        </div>
+
+        <div id="formatHistoryModal" class="modal hidden">
+          <div class="modal-card format-history-modal-card">
+            <button id="closeFormatHistoryModalBtn" class="modal-close" type="button">&times;</button>
+            <p class="eyebrow">Transformar</p>
+            <h3>Histórico de formatação de colunas</h3>
+            <p class="mini-help">Formatações aplicadas via painel de coluna ou etapas. Clique em "Desfazer" para remover.</p>
+            <div id="formatHistoryBody" class="format-history-body">
+              <div class="empty-state">Nenhuma formatação aplicada até o momento.</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="novaTabelaModal" class="modal hidden">
+          <div class="modal-card nova-tabela-dax-modal-card">
+            <button id="closeNovaTabelaModalBtn" class="modal-close" type="button">&times;</button>
+            <p class="eyebrow">Tabela calculada</p>
+            <h3 id="novaTabelaDaxTitle">Nova tabela DAX</h3>
+            <div class="nova-tabela-dax-editor">
+              <div class="measure-editor-container">
+                <div id="novaTabelaDaxHighlight" class="measure-formula-highlight" aria-hidden="true"></div>
+                <textarea id="novaTabelaDaxFormula" rows="16" autocomplete="off" spellcheck="false" aria-label="Código da nova tabela DAX" placeholder="Nome da tabela =&#10;UNION(&#10;    SELECTCOLUMNS(Tabela1, &quot;Coluna&quot;, Tabela1[Coluna]),&#10;    SELECTCOLUMNS(Tabela2, &quot;Coluna&quot;, Tabela2[Coluna])&#10;)"></textarea>
+              </div>
+              <div id="novaTabelaDaxSuggestions" class="measure-autocomplete-list"></div>
+            </div>
+            <div id="novaTabelaDaxResult" class="transform-dax-test-result">Digite o código e valide antes de criar a tabela.</div>
+            <div class="actions right nova-tabela-dax-actions">
+              <button id="novaTabelaDaxTestBtn" class="btn ghost" type="button">Validar código</button>
+              <button id="novaTabelaDaxCreateBtn" class="btn primary" type="button" disabled>Criar tabela</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sqlTab" class="tab" data-admin-only>
+        <div class="powerbi-shell" id="reportDesignerShell">
+          <div class="report-canvas-panel">
+            <div class="page-head page-head-dark powerbi-head powerbi-editor-head">
+              <div>
+                <span class="page-head-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></span>
+                <h2>Construtor de Relatórios</h2>
+              </div>
+              <div class="actions wrap editor-main-actions">
+                <button id="saveReportBtn" class="btn secondary">Salvar no dashboard</button>
+                <button id="previewOnlineBtn" class="btn ghost">Prévia Online</button>
+                <button id="publishFromEditorBtn" class="btn primary">Publicar Online</button>
+                <button id="newReportBtn" class="btn ghost">Novo</button>
+              </div>
+            </div>
+
+            <div class="powerbi-editor-ribbon powerbi-main-ribbon" id="mainRibbon" data-active-ribbon-tab="home">
+              <div class="ribbon-tab-strip" role="tablist" aria-label="Ferramentas do construtor de relatórios">
+                <div class="ribbon-tab-buttons" role="presentation">
+                  <button type="button" class="ribbon-tab active" id="ribbonTabHome" data-ribbon-tab="home" role="tab" aria-controls="ribbonPanelHome" aria-selected="true">Página Inicial</button>
+                  <button type="button" class="ribbon-tab" id="ribbonTabInsert" data-ribbon-tab="insert" role="tab" aria-controls="ribbonPanelInsert" aria-selected="false">Inserir</button>
+                  <button type="button" class="ribbon-tab" id="ribbonTabModel" data-ribbon-tab="model" role="tab" aria-controls="ribbonPanelModel" aria-selected="false">Modelagem</button>
+                  <button type="button" class="ribbon-tab" id="ribbonTabView" data-ribbon-tab="view" role="tab" aria-controls="ribbonPanelView" aria-selected="false">Exibição</button>
+                  <button type="button" class="ribbon-tab ribbon-tab-contextual" id="ribbonTabVisual" data-ribbon-tab="visual" role="tab" aria-controls="ribbonPanelVisual" aria-selected="false" hidden>Personalizar visual</button>
+                  <button type="button" class="ribbon-tab ribbon-tab-contextual ribbon-tab-measure" id="ribbonTabMeasure" data-ribbon-tab="measure" role="tab" aria-controls="ribbonPanelMeasure" aria-selected="false" hidden>Ferramentas de medida</button>
+                </div>
+                <div class="ribbon-fixed-actions">
+                  <span class="ribbon-context-title" id="ribbonContextTitle">Ferramentas do construtor</span>
+                  <button id="toolbarOpenFiltersBtn" type="button" class="ribbon-fixed-filter-btn" title="Configurar os filtros do relatório">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5Z"/></svg>
+                    <span>Filtros</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="ribbon-tab-panel active" id="ribbonPanelHome" data-ribbon-panel="home" role="tabpanel" aria-labelledby="ribbonTabHome">
+                <div class="ribbon-command-group ribbon-report-settings-group">
+                  <div class="ribbon-report-settings">
+                    <label class="ribbon-report-name-field">
+                      <span>Nome do relatório</span>
+                      <input id="reportName" type="text" placeholder="Ex: Vendas por dia" />
+                    </label>
+                    <label class="ribbon-report-refresh-field">
+                      <span>Taxa atualização</span>
+                      <div class="ribbon-refresh-input"><input id="reportRefresh" type="number" min="5" value="15" /><small>seg.</small></div>
+                    </label>
+                  </div>
+                  <span class="ribbon-command-group-label">Configuração do relatório</span>
+                </div>
+                <div class="ribbon-command-group ribbon-report-actions-group">
+                  <button id="ribbonReloadDataBtn" type="button" class="ribbon-command" title="Recarregar os dados da fonte">
+                    <span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7"/></svg></span>
+                    <span>Atualizar dados</span>
+                  </button>
+                  <span class="ribbon-command-group-label">Relatório</span>
+                </div>
+                <div class="ribbon-command-group ribbon-home-help-group">
+                  <div class="ribbon-guidance">
+                    <span class="ribbon-guidance-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-6"/></svg></span>
+                    <span><strong>Construa seu relatório</strong><small>Selecione um visual para abrir sua aba de personalização.</small></span>
+                  </div>
+                  <span class="ribbon-command-group-label">Visão geral</span>
+                </div>
+              </div>
+
+              <div class="ribbon-tab-panel" id="ribbonPanelInsert" data-ribbon-panel="insert" role="tabpanel" aria-labelledby="ribbonTabInsert" hidden>
+                <div class="ribbon-command-group ribbon-insert-group">
+                  <button type="button" class="ribbon-command" data-ribbon-add-visual="table" title="Inserir tabela"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M9 4v16"/></svg></span><span>Tabela</span></button>
+                  <button type="button" class="ribbon-command" data-ribbon-add-visual="matrix" title="Inserir matriz"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></span><span>Matriz</span></button>
+                  <button type="button" class="ribbon-command" data-ribbon-add-visual="bar" title="Inserir gráfico de barras"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V4m0 16h17M8 16h9M8 11h6M8 6h11"/></svg></span><span>Gráfico</span></button>
+                  <button type="button" class="ribbon-command" data-ribbon-add-visual="line" title="Inserir gráfico de linha"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M7 15l4-5 4 3 4-7"/><circle cx="7" cy="15" r="1"/><circle cx="11" cy="10" r="1"/><circle cx="15" cy="13" r="1"/><circle cx="19" cy="6" r="1"/></svg></span><span>Linha</span></button>
+                  <button type="button" class="ribbon-command" data-ribbon-add-visual="card" title="Inserir cartão"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h10M9 14h6"/></svg></span><span>Cartão</span></button>
+                  <button type="button" class="ribbon-command" data-ribbon-add-visual="slicer" title="Inserir filtro"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16l-6 7v5l-4 2v-7L4 5Z"/></svg></span><span>Filtro</span></button>
+                  <span class="ribbon-command-group-label">Visuais</span>
+                </div>
+                <div class="ribbon-command-group ribbon-static-group">
+                  <button type="button" class="ribbon-command" data-ribbon-add-visual="textbox" title="Inserir caixa de texto"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M7 8h10M12 8v8M9 16h6"/></svg></span><span>Texto</span></button>
+                  <button type="button" class="ribbon-command" data-ribbon-add-visual="image" title="Inserir imagem"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="8" cy="9" r="1.5"/><path d="m5 18 5-5 3 3 2-2 4 4"/></svg></span><span>Imagem</span></button>
+                  <span class="ribbon-command-group-label">Elementos</span>
+                </div>
+              </div>
+
+              <div class="ribbon-tab-panel" id="ribbonPanelModel" data-ribbon-panel="model" role="tabpanel" aria-labelledby="ribbonTabModel" hidden>
+                <div class="ribbon-command-group">
+                  <button id="ribbonAddMeasureBtn" type="button" class="ribbon-command" title="Criar uma nova medida"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="12" height="18" rx="1"/><path d="M7 7h6M8 12h1m3 0h1m-5 4h1m3 0h1M18 8v6m-3-3h6"/></svg></span><span>Nova medida</span></button>
+                  <span class="ribbon-command-group-label">Cálculos</span>
+                </div>
+                <div class="ribbon-command-group">
+                  <button id="ribbonOpenVisualFormatBtn" type="button" class="ribbon-command ribbon-command-wide" title="Personalizar o visual selecionado sem sair do construtor"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M9 4v16M15 4v9M3 9h18M3 14h12M17 17l4-4M18 12l3 3"/></svg></span><span>Personalizar visual</span></button>
+                  <span class="ribbon-command-group-label">Propriedades</span>
+                </div>
+              </div>
+
+              <div class="ribbon-tab-panel" id="ribbonPanelView" data-ribbon-panel="view" role="tabpanel" aria-labelledby="ribbonTabView" hidden>
+                <div class="ribbon-organizar-group ribbon-view-tools">
+                  <div class="ribbon-command-group ribbon-layer-group">
+                    <div class="ribbon-zorder-btns">
+                      <button id="ribbonBringFrontBtn" class="btn ghost compact-btn ribbon-zorder-btn" title="Trazer para frente (z-index máximo)"><span class="ribbon-zorder-icon">&#9650;&#9650;</span><span>Frente</span></button>
+                      <button id="ribbonBringForwardBtn" class="btn ghost compact-btn ribbon-zorder-btn" title="Avançar uma posição"><span class="ribbon-zorder-icon">&#9650;</span><span>Avançar</span></button>
+                      <button id="ribbonSendBackwardBtn" class="btn ghost compact-btn ribbon-zorder-btn" title="Recuar uma posição"><span class="ribbon-zorder-icon">&#9660;</span><span>Recuar</span></button>
+                      <button id="ribbonSendBackBtn" class="btn ghost compact-btn ribbon-zorder-btn" title="Enviar para o fundo (z-index mínimo)"><span class="ribbon-zorder-icon">&#9660;&#9660;</span><span>Fundo</span></button>
+                    </div>
+                    <span class="ribbon-command-group-label">Camadas</span>
+                  </div>
+                  <div class="ribbon-command-group ribbon-layout-group">
+                    <div class="ribbon-layout-actions" aria-label="Organização do visual">
+                      <label class="ribbon-grid-toggle" title="Alinhar movimentos à grade"><input id="snapGridToggle" type="checkbox" checked /> Grade</label>
+                      <button id="alignVisualLeftBtn" type="button" class="btn ghost compact-btn ribbon-layout-btn" title="Alinhar visual à esquerda">⇤</button>
+                      <button id="alignVisualTopBtn" type="button" class="btn ghost compact-btn ribbon-layout-btn" title="Alinhar visual ao topo">↥</button>
+                      <button id="centerVisualBtn" type="button" class="btn ghost compact-btn ribbon-layout-btn" title="Centralizar visual na página">⊙</button>
+                      <button id="duplicateVisualBtn" type="button" class="btn ghost compact-btn ribbon-layout-btn" title="Duplicar visual">⧉</button>
+                      <button id="fitCanvasBtn" type="button" class="btn ghost compact-btn ribbon-layout-btn" title="Ajustar página ao espaço disponível">↗</button>
+                    </div>
+                    <span class="ribbon-command-group-label">Organizar visual</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ribbon-tab-panel ribbon-visual-panel" id="ribbonPanelVisual" data-ribbon-panel="visual" role="tabpanel" aria-labelledby="ribbonTabVisual" hidden>
+                <div class="ribbon-command-group ribbon-visual-identity-group">
+                  <div class="ribbon-visual-identity">
+                    <span class="ribbon-visual-identity-icon" aria-hidden="true">▦</span>
+                    <span><strong id="ribbonSelectedVisualType">Visual</strong><small>Visual selecionado</small></span>
+                  </div>
+                  <span class="ribbon-command-group-label">Seleção</span>
+                </div>
+                <div class="ribbon-command-group ribbon-visual-title-group">
+                  <label class="ribbon-visual-title-control">
+                    <span>Título do visual</span>
+                    <input id="ribbonVisualTitleInput" type="text" placeholder="Sem título" />
+                  </label>
+                  <label class="ribbon-mini-toggle"><input id="ribbonVisualShowTitleToggle" type="checkbox" /> Exibir</label>
+                  <span class="ribbon-command-group-label">Título</span>
+                </div>
+                <div class="ribbon-command-group ribbon-visual-colors-group">
+                  <label class="ribbon-color-control">Fundo<input id="ribbonVisualBgColor" type="color" value="#ffffff" /></label>
+                  <label class="ribbon-color-control">Texto<input id="ribbonVisualTextColor" type="color" value="#0f172a" /></label>
+                  <label class="ribbon-color-control">Destaque<input id="ribbonVisualAccentColor" type="color" value="#2563eb" /></label>
+                  <span class="ribbon-command-group-label">Cores</span>
+                </div>
+                <div class="ribbon-command-group ribbon-visual-effects-group">
+                  <label class="ribbon-mini-toggle"><input id="ribbonVisualBorderToggle" type="checkbox" /> Borda</label>
+                  <label class="ribbon-mini-toggle"><input id="ribbonVisualShadowToggle" type="checkbox" /> Sombra</label>
+                  <span class="ribbon-command-group-label">Efeitos</span>
+                </div>
+                <div class="ribbon-command-group">
+                  <button id="ribbonOpenVisualFormatPaneBtn" type="button" class="ribbon-command ribbon-command-wide" title="Abrir todas as opções de formatação neste construtor"><span class="ribbon-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/><circle cx="9" cy="5" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="11" cy="19" r="2"/></svg></span><span>Mais opções</span></button>
+                  <span class="ribbon-command-group-label">Formatação</span>
+                </div>
+              </div>
+
+              <div class="ribbon-tab-panel ribbon-measure-panel" id="ribbonPanelMeasure" data-ribbon-panel="measure" role="tabpanel" aria-labelledby="ribbonTabMeasure" hidden>
+                <input id="ribbonMeasureName" type="hidden" />
+                <div class="ribbon-command-group ribbon-measure-format-group">
+                  <div class="ribbon-measure-format-controls">
+                    <label class="ribbon-measure-field ribbon-measure-format-field">
+                      <span>Formato</span>
+                      <select id="ribbonMeasureFormat" class="ribbon-select" title="Formato">
+                      <option value="">Geral</option>
+                      <option value="Numero">Número inteiro</option>
+                      <option value="Decimal">Número decimal</option>
+                      <option value="Porcentagem">Porcentagem</option>
+                      <option value="Moeda">Moeda</option>
+                      <option value="Data">Data</option>
+                      <option value="Texto">Texto</option>
+                      </select>
+                    </label>
+                    <div class="ribbon-measure-symbols" aria-label="Atalhos de formatação">
+                      <button id="ribbonMeasureCurrency" class="btn ghost compact-btn ribbon-format-symbol" title="Símbolo monetário">R$</button>
+                      <button id="ribbonMeasurePercent" class="btn ghost compact-btn ribbon-format-symbol" title="Porcentagem">%</button>
+                      <button id="ribbonMeasureThousands" class="btn ghost compact-btn ribbon-format-symbol" title="Separador de milhar">,</button>
+                    </div>
+                    <label class="ribbon-measure-field ribbon-measure-decimals-field">
+                      <span>Casas decimais</span>
+                      <span class="ribbon-measure-decimals">
+                        <button id="ribbonMeasureDecDecimals" class="btn ghost compact-btn ribbon-decimal-btn" type="button" title="Diminuir casas decimais">.0↑</button>
+                        <input id="ribbonMeasureDecimals" type="number" min="0" max="10" value="2" class="ribbon-decimal-input" title="Casas decimais" />
+                        <button id="ribbonMeasureIncDecimals" class="btn ghost compact-btn ribbon-decimal-btn" type="button" title="Aumentar casas decimais">.0↓</button>
+                      </span>
+                    </label>
+                  </div>
+                  <span class="ribbon-command-group-label">Formatação</span>
+                </div>
+                <div class="ribbon-command-group ribbon-measure-category-group">
+                  <label class="ribbon-measure-field">
+                    <span>Categoria de dados</span>
+                    <select id="ribbonMeasureCategory" class="ribbon-select">
+                      <option value="">Não categorizado</option>
+                      <option value="Endereço">Endereço</option>
+                      <option value="Cidade">Cidade</option>
+                      <option value="Estado">Estado</option>
+                      <option value="País">País</option>
+                      <option value="CEP">CEP</option>
+                      <option value="Longitude">Longitude</option>
+                      <option value="Latitude">Latitude</option>
+                      <option value="URL">URL da imagem</option>
+                      <option value="URLweb">URL da Web</option>
+                      <option value="CodigoBarras">Código de barras</option>
+                    </select>
+                  </label>
+                  <span class="ribbon-command-group-label">Propriedades</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="measureFormulaBar" class="measure-formula-bar" hidden>
+              <button id="measureFormulaCancelBtn" class="measure-formula-action cancel" type="button" title="Cancelar">×</button>
+              <button id="measureFormulaApplyBtn" class="measure-formula-action apply" type="button" title="Confirmar">✓</button>
+              <div class="measure-formula-wrapper measure-formula-bar-wrapper">
+                <div id="measureFormulaHighlight" class="measure-formula-highlight" aria-hidden="true"></div>
+                <textarea id="measureFormulaInput" class="measure-formula-input" placeholder="Nome da Medida = expressão DAX" autocomplete="off" spellcheck="false" rows="1"></textarea>
+                <div id="measureFormulaSuggestions" class="measure-autocomplete-list measure-formula-suggestions"></div>
+              </div>
+            </div>
+            <div id="measureFormulaValidationMessage" class="measure-formula-validation" role="status" aria-live="polite" hidden></div>
+
+            <div class="report-canvas" id="reportCanvasViewport">
+              <div class="report-canvas-stage" id="reportCanvasStage">
+                <div class="report-page" id="reportPage">
+                  <div class="visual-frame" id="visualFrame" tabindex="0">
+                    <div class="visual-frame-head">
+                      <strong id="visualTitlePreview">Novo visual</strong>
+                      <span id="queryMeta" class="meta"></span>
+                    </div>
+                    <div id="queryResult" class="result visual-content empty-state">Selecione ou arraste campos do painel Dados para renderizar automaticamente.</div>
+                    <button type="button" class="visual-resize-handle visual-resize-handle-nw" data-visual-resize-corner="nw" title="Redimensionar pelo canto superior esquerdo" aria-label="Redimensionar pelo canto superior esquerdo"></button>
+                    <button type="button" class="visual-resize-handle visual-resize-handle-ne" data-visual-resize-corner="ne" title="Redimensionar pelo canto superior direito" aria-label="Redimensionar pelo canto superior direito"></button>
+                    <button type="button" class="visual-resize-handle visual-resize-handle-sw" data-visual-resize-corner="sw" title="Redimensionar pelo canto inferior esquerdo" aria-label="Redimensionar pelo canto inferior esquerdo"></button>
+                    <button type="button" class="visual-resize-handle visual-resize-handle-se" data-visual-resize-corner="se" title="Redimensionar pelo canto inferior direito" aria-label="Redimensionar pelo canto inferior direito"></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="report-page-navigation-bar">
+              <div class="page-tabs compact-page-tabs" id="reportPageTabs"></div>
+              <div class="page-navigation-tools">
+                <button id="fullscreenCanvasBtn" type="button" class="btn ghost report-toolbar-icon-btn fullscreen-editor-btn" title="Abrir editor em tela cheia" aria-label="Abrir editor em tela cheia" aria-pressed="false">&#x26F6;</button>
+                <div class="toolbar-zoom-field page-zoom-field" aria-label="Zoom do editor">
+                  <span>Zoom</span>
+                  <div class="toolbar-zoom-controls">
+                    <button id="canvasZoomOutBtn" type="button" class="btn ghost compact-btn" title="Diminuir zoom">&minus;</button>
+                    <button id="canvasZoomResetBtn" type="button" class="btn ghost compact-btn" title="Restaurar zoom para 100%">100%</button>
+                    <button id="canvasZoomInBtn" type="button" class="btn ghost compact-btn" title="Aumentar zoom">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <textarea id="sqlEditor" hidden aria-hidden="true"></textarea>
+          </div>
+
+          <aside class="powerbi-side-panel visualizations-pane" id="visualizationsPane">
+            <div class="pane-title">
+              <h3>Visualizações</h3>
+              <button class="pane-collapse-btn" type="button" data-collapse-pane="visualizationsPane" title="Retrair/expandir Visualizações">»</button>
+            </div>
+            <div class="visual-pane-tabs" role="tablist" aria-label="Modos do painel Visualizações">
+              <button type="button" class="visual-pane-tab active" data-visual-pane-tab="build" title="Criar seu visual">▦</button>
+              <button type="button" class="visual-pane-tab" data-visual-pane-tab="format" title="Formatar seu visual">🎨</button>
+              <button type="button" class="visual-pane-tab" data-visual-pane-tab="analytics" title="Analisar seu visual">🔎</button>
+            </div>
+              <div class="visual-tools-head" data-visual-pane-section="build"><p class="mini-label">Criar visual</p><button id="addVisualBtn" type="button" class="btn ghost add-visual-btn" title="Adicionar novo visual ao canvas">+ Visual</button></div>
+            <div class="visual-icon-grid powerbi-icons" id="visualIconGrid" data-visual-pane-section="build">
+              <button class="visual-icon active" data-viz="table" title="Tabela"><span>📋</span><small>Tabela</small></button>
+              <button class="visual-icon" data-viz="matrix" title="Matriz"><span>🧮</span><small>Matriz</small></button>
+              <button class="visual-icon" data-viz="bar" title="Barras agrupadas"><span>📊</span><small>Barras</small></button>
+              <button class="visual-icon" data-viz="stackedbar" title="Barras empilhadas"><span>📶</span><small>Empilh.</small></button>
+              <button class="visual-icon" data-viz="column" title="Colunas agrupadas"><span>📏</span><small>Colunas</small></button>
+              <button class="visual-icon" data-viz="stackedcolumn" title="Colunas empilhadas"><span>🧱</span><small>Col. emp.</small></button>
+              <button class="visual-icon" data-viz="line" title="Linha"><span>📈</span><small>Linha</small></button>
+              <button class="visual-icon" data-viz="area" title="Área"><span>📉</span><small>Área</small></button>
+              <button class="visual-icon" data-viz="pie" title="Pizza"><span>🥧</span><small>Pizza</small></button>
+              <button class="visual-icon" data-viz="donut" title="Rosca"><span>🍩</span><small>Rosca</small></button>
+              <button class="visual-icon" data-viz="scatter" title="Dispersão"><span>✨</span><small>Dispers.</small></button>
+              <button class="visual-icon" data-viz="funnel" title="Funil"><span>🔽</span><small>Funil</small></button>
+              <button class="visual-icon" data-viz="gauge" title="Medidor"><span>⏱️</span><small>Gauge</small></button>
+              <button class="visual-icon" data-viz="card" title="Cartão"><span>🃏</span><small>Cartão</small></button>
+              <button class="visual-icon" data-viz="kpi" title="KPI"><span>🎯</span><small>KPI</small></button>
+              <button class="visual-icon" data-viz="map" title="Mapa"><span>🗺️</span><small>Mapa</small></button>
+              <button class="visual-icon" data-viz="slicer" title="Segmentação de dados"><span>🎛️</span><small>Filtro</small></button>
+              <button class="visual-icon" data-viz="textbox" title="Caixa de texto"><span>📝</span><small>Texto</small></button>
+              <button class="visual-icon" data-viz="image" title="Imagem"><span>🖼️</span><small>Imagem</small></button>
+            </div>
+            <input id="reportViz" type="hidden" value="table" />
+
+            <div class="field-bucket" data-visual-pane-section="build">
+              <h4 id="visualFieldsHeading">Colunas</h4>
+              <div class="visual-field-drop-grid" id="visualFieldDropGrid">
+                <div class="visual-field-drop" data-field-drop-target="dimension" id="visualDropDimension">
+                  <span class="drop-label">Colunas</span>
+                  <strong data-field-drop-value="dimension">Adicionar campos</strong>
+                  <button type="button" class="drop-clear" data-clear-visual-field="dimension" title="Remover">×</button>
+                </div>
+                <div class="visual-field-drop" data-field-drop-target="matrixColumns" id="visualDropMatrixColumns" style="display:none">
+                  <span class="drop-label">Colunas</span>
+                  <strong data-field-drop-value="matrixColumns">Adicionar campos</strong>
+                  <button type="button" class="drop-clear" data-clear-visual-field="matrixColumns" title="Remover colunas da matriz">×</button>
+                </div>
+                <div class="visual-field-drop" data-field-drop-target="value" id="visualDropValue" style="display:none">
+                  <span class="drop-label">Valores</span>
+                  <strong data-field-drop-value="value">Adicionar campo</strong>
+                  <button type="button" class="drop-clear" data-clear-visual-field="value" title="Remover valor">×</button>
+                </div>
+                <div class="visual-field-drop" data-field-drop-target="secondaryValue" id="visualDropSecondaryValue" style="display:none">
+                  <span class="drop-label">Valores 2</span>
+                  <strong data-field-drop-value="secondaryValue">Adicionar campo</strong>
+                  <button type="button" class="drop-clear" data-clear-visual-field="secondaryValue" title="Remover segundo valor">×</button>
+                </div>
+              </div>
+              <div class="empty-state" id="visualFieldsEmpty" style="display:none">Adicionar campos</div>
+              <select id="builderDimensionSelect" hidden></select>
+              <select id="builderValueSelect" hidden></select>
+              <select id="builderSecondaryValueSelect" hidden></select>
+              <label id="aggregationLabel">
+                Agregação
+                <select id="builderAggregationSelect">
+                  <option value="SUM">Soma</option>
+                  <option value="AVG">Média</option>
+                  <option value="COUNT">Contagem</option>
+                  <option value="DISTINCTCOUNT">Contagem distinta</option>
+                  <option value="MIN">Mínimo</option>
+                  <option value="MAX">Máximo</option>
+                </select>
+              </label>
+              <label id="orderLabel">
+                Ordenação
+                <select id="builderOrderSelect">
+                  <option value="DESC">Maior para menor</option>
+                  <option value="ASC">Menor para maior</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="field-bucket visual-format-pane" id="visualFormatPane" data-visual-pane-section="format">
+              <div class="format-pane-header">
+                <div>
+                  <h4>Formatação</h4>
+
+                </div>
+                <span class="format-selected-pill" id="formatSelectedVisualBadge">Visual</span>
+              </div>
+
+              <details class="format-card">
+                <summary><span>Título</span></summary>
+                <div class="format-card-body">
+                  <label>
+                    Título do visual
+                    <input id="visualTitleInput" placeholder="Ex: Faturamento por dia" />
+                  </label>
+                  <label class="inline-toggle"><input id="visualShowTitleToggle" type="checkbox" checked /> Mostrar título</label>
+                  <div class="format-color-grid">
+                    <label>Fundo título<input id="visualTitleBgColor" type="color" value="#ffffff" /></label>
+                    <label>Texto título<input id="visualTitleTextColor" type="color" value="#0f172a" /></label>
+                  </div>
+                  <div class="format-two-cols format-two-cols-with-alignment">
+                    <label>Tamanho<input id="visualTitleFontSize" type="number" min="10" max="36" value="14" /></label>
+                    <label class="alignment-field"><span>Alinhamento do título</span>
+                      <span class="alignment-button-group" role="group" aria-label="Alinhamento do título">
+                        <button type="button" class="alignment-choice alignment-left" data-alignment-target="visualTitleAlign" data-alignment-value="left" aria-label="Alinhar título à esquerda" title="Esquerda" aria-pressed="true"></button>
+                        <button type="button" class="alignment-choice alignment-center" data-alignment-target="visualTitleAlign" data-alignment-value="center" aria-label="Centralizar título" title="Centro" aria-pressed="false"></button>
+                        <button type="button" class="alignment-choice alignment-right" data-alignment-target="visualTitleAlign" data-alignment-value="right" aria-label="Alinhar título à direita" title="Direita" aria-pressed="false"></button>
+                      </span>
+                      <select id="visualTitleAlign" class="alignment-native-select" hidden tabindex="-1" aria-hidden="true">
+                        <option value="left">Esquerda</option>
+                        <option value="center">Centro</option>
+                        <option value="right">Direita</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+              </details>
+
+              <details class="format-card" id="formatCardTextbox" style="display:none">
+                <summary><span>Caixa de texto</span></summary>
+                <div class="format-card-body">
+                  <label>
+                    Conteúdo
+                    <textarea id="visualTextContent" rows="4" placeholder="Digite seu texto aqui. Use HTML para formatação."></textarea>
+                  </label>
+                  <div class="format-color-grid format-color-grid-single">
+                    <label>Cor do texto<input id="visualTextboxTextColor" type="color" value="#0f172a" /></label>
+                  </div>
+                  <div class="format-two-cols">
+                    <label>Tamanho<input id="visualTextboxFontSize" type="number" min="8" max="120" value="16" /></label>
+                    <label>Fonte
+                      <select id="visualTextboxFontFamily">
+                        <option value="Inter, Segoe UI, Arial, sans-serif">Inter / Segoe UI</option>
+                        <option value="Calibri, Segoe UI, Arial, sans-serif">Calibri</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="Verdana, Arial, sans-serif">Verdana</option>
+                        <option value="Tahoma, Arial, sans-serif">Tahoma</option>
+                        <option value="Trebuchet MS, Arial, sans-serif">Trebuchet MS</option>
+                        <option value="Georgia, Times New Roman, serif">Georgia</option>
+                        <option value="Times New Roman, Georgia, serif">Times New Roman</option>
+                        <option value="Courier New, Consolas, monospace">Courier New</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div class="card-font-style-row">
+                    <span>Estilo</span>
+                    <div class="card-font-style-options" role="group" aria-label="Estilo da fonte da caixa de texto">
+                      <label class="card-font-style-toggle" title="Negrito">
+                        <input id="visualTextboxBold" type="checkbox" aria-label="Texto em negrito" />
+                        <span class="font-style-bold">B</span>
+                      </label>
+                      <label class="card-font-style-toggle" title="Itálico">
+                        <input id="visualTextboxItalic" type="checkbox" aria-label="Texto em itálico" />
+                        <span class="font-style-italic">I</span>
+                      </label>
+                      <label class="card-font-style-toggle" title="Sublinhado">
+                        <input id="visualTextboxUnderline" type="checkbox" aria-label="Texto sublinhado" />
+                        <span class="font-style-underline">U</span>
+                      </label>
+                    </div>
+                  </div>
+                  <label class="alignment-field"><span>Alinhamento horizontal</span>
+                    <span class="alignment-button-group" role="group" aria-label="Alinhamento do texto">
+                      <button type="button" class="alignment-choice alignment-left" data-alignment-target="visualTextboxAlign" data-alignment-value="left" aria-label="Alinhar texto à esquerda" title="Esquerda" aria-pressed="true"></button>
+                      <button type="button" class="alignment-choice alignment-center" data-alignment-target="visualTextboxAlign" data-alignment-value="center" aria-label="Centralizar texto" title="Centro" aria-pressed="false"></button>
+                      <button type="button" class="alignment-choice alignment-right" data-alignment-target="visualTextboxAlign" data-alignment-value="right" aria-label="Alinhar texto à direita" title="Direita" aria-pressed="false"></button>
+                    </span>
+                    <select id="visualTextboxAlign" class="alignment-native-select" hidden tabindex="-1" aria-hidden="true">
+                      <option value="left">Esquerda</option>
+                      <option value="center">Centro</option>
+                      <option value="right">Direita</option>
+                    </select>
+                  </label>
+                  <label>Alinhamento vertical
+                    <select id="visualTextboxVerticalAlign">
+                      <option value="top">Topo</option>
+                      <option value="center">Centro</option>
+                      <option value="bottom">Base</option>
+                    </select>
+                  </label>
+                </div>
+              </details>
+              <details class="format-card" id="formatCardImage" style="display:none">
+                <summary><span>Imagem</span></summary>
+                <div class="format-card-body">
+                  <label>
+                    URL da imagem
+                    <input id="visualImageSrc" type="text" placeholder="https://exemplo.com/imagem.png ou data:..." />
+                  </label>
+                  <label>Ajuste
+                    <select id="visualImageFit">
+                      <option value="contain">Ajustar (contain)</option>
+                      <option value="cover">Preencher (cover)</option>
+                      <option value="fill">Esticar (fill)</option>
+                    </select>
+                  </label>
+                </div>
+              </details>
+              <details class="format-card" id="formatCardCard" style="display:none">
+                <summary><span>Cart&atilde;o</span></summary>
+                <div class="format-card-body">
+                  <label class="inline-toggle"><input id="visualCardAutoFit" type="checkbox" checked /> Ajustar valor ao tamanho</label>
+                  <label class="inline-toggle"><input id="visualCardShowCategory" type="checkbox" checked /> Mostrar nome do campo</label>
+                  <label class="inline-toggle"><input id="visualCardShowAccent" type="checkbox" checked /> Mostrar faixa de destaque</label>
+                  <label class="alignment-field"><span>Alinhamento do conte&uacute;do</span>
+                    <span class="alignment-button-group" role="group" aria-label="Alinhamento do cart&atilde;o">
+                      <button type="button" class="alignment-choice alignment-left" data-alignment-target="visualCardAlign" data-alignment-value="left" aria-label="Alinhar cart&atilde;o &agrave; esquerda" title="Esquerda" aria-pressed="false"></button>
+                      <button type="button" class="alignment-choice alignment-center" data-alignment-target="visualCardAlign" data-alignment-value="center" aria-label="Centralizar cart&atilde;o" title="Centro" aria-pressed="true"></button>
+                      <button type="button" class="alignment-choice alignment-right" data-alignment-target="visualCardAlign" data-alignment-value="right" aria-label="Alinhar cart&atilde;o &agrave; direita" title="Direita" aria-pressed="false"></button>
+                    </span>
+                    <select id="visualCardAlign" class="alignment-native-select" hidden tabindex="-1" aria-hidden="true">
+                      <option value="left">Esquerda</option>
+                      <option value="center" selected>Centro</option>
+                      <option value="right">Direita</option>
+                    </select>
+                  </label>
+                  <label>Fonte do cart&atilde;o
+                    <select id="visualCardFontFamily">
+                      <option value="inherit">Usar fonte geral</option>
+                      <option value="Inter, Segoe UI, Arial, sans-serif">Inter / Segoe UI</option>
+                      <option value="Calibri, Segoe UI, Arial, sans-serif">Calibri</option>
+                      <option value="Arial, sans-serif">Arial</option>
+                      <option value="Verdana, Arial, sans-serif">Verdana</option>
+                      <option value="Tahoma, Arial, sans-serif">Tahoma</option>
+                      <option value="Trebuchet MS, Arial, sans-serif">Trebuchet MS</option>
+                      <option value="Georgia, Times New Roman, serif">Georgia</option>
+                      <option value="Times New Roman, Georgia, serif">Times New Roman</option>
+                      <option value="Courier New, Consolas, monospace">Courier New</option>
+                      <option value="Impact, Arial Black, sans-serif">Impact</option>
+                      <option value="Comic Sans MS, cursive">Comic Sans</option>
+                    </select>
+                  </label>
+                  <div class="format-two-cols">
+                    <label>Tamanho do valor<input id="visualCardValueFontSize" type="number" min="8" max="120" value="52" /></label>
+                    <label>Tamanho do nome<input id="visualCardCategoryFontSize" type="number" min="6" max="32" value="12" /></label>
+                  </div>
+                  <div class="card-font-style-row">
+                    <span>Valor</span>
+                    <div class="card-font-style-options" role="group" aria-label="Estilo da fonte do valor">
+                      <label class="card-font-style-toggle" title="Negrito">
+                        <input id="visualCardValueBold" type="checkbox" aria-label="Valor em negrito" checked />
+                        <span class="font-style-bold">B</span>
+                      </label>
+                      <label class="card-font-style-toggle" title="It&aacute;lico">
+                        <input id="visualCardValueItalic" type="checkbox" aria-label="Valor em it&aacute;lico" />
+                        <span class="font-style-italic">I</span>
+                      </label>
+                      <label class="card-font-style-toggle" title="Sublinhado">
+                        <input id="visualCardValueUnderline" type="checkbox" aria-label="Valor sublinhado" />
+                        <span class="font-style-underline">U</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="card-font-style-row">
+                    <span>Nome</span>
+                    <div class="card-font-style-options" role="group" aria-label="Estilo da fonte do nome do campo">
+                      <label class="card-font-style-toggle" title="Negrito">
+                        <input id="visualCardCategoryBold" type="checkbox" aria-label="Nome do campo em negrito" checked />
+                        <span class="font-style-bold">B</span>
+                      </label>
+                      <label class="card-font-style-toggle" title="It&aacute;lico">
+                        <input id="visualCardCategoryItalic" type="checkbox" aria-label="Nome do campo em it&aacute;lico" />
+                        <span class="font-style-italic">I</span>
+                      </label>
+                      <label class="card-font-style-toggle" title="Sublinhado">
+                        <input id="visualCardCategoryUnderline" type="checkbox" aria-label="Nome do campo sublinhado" />
+                        <span class="font-style-underline">U</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="format-color-grid">
+                    <label>Cor do valor<input id="visualCardValueColor" type="color" value="#2563eb" /></label>
+                    <label>Cor do nome<input id="visualCardCategoryColor" type="color" value="#64748b" /></label>
+                    <label>Cor da faixa<input id="visualCardAccentColor" type="color" value="#2563eb" /></label>
+                    <label>Fundo interno<input id="visualCardInnerBackground" type="color" value="#f8fbff" /></label>
+                  </div>
+                  <label>Cor estática / padrão
+                    <span class="color-hex-control"><input id="visualCardDefaultValueColor" type="color" value="#2563eb" /><input id="visualCardDefaultValueColorHex" type="text" value="#2563eb" maxlength="7" inputmode="text" aria-label="Cor hexadecimal padrão do valor" /></span>
+                  </label>
+                  <section class="card-conditional-color-editor" aria-labelledby="cardConditionalColorTitle">
+                    <div class="column-rule-section-title"><strong id="cardConditionalColorTitle">Cor dinâmica</strong></div>
+                    <label>Medida ou campo<select id="visualCardColorRuleField"></select></label>
+                    <div class="format-two-cols">
+                      <label>Condição<select id="visualCardColorRuleOperator"><option value="gt">Maior que</option><option value="gte">Maior ou igual</option><option value="lt">Menor que</option><option value="lte">Menor ou igual</option><option value="eq">Igual</option><option value="neq">Diferente</option><option value="blank">Está em branco</option><option value="notblank">Não está em branco</option></select></label>
+                      <label>Valor<input id="visualCardColorRuleValue" type="text" inputmode="decimal" placeholder="0" /></label>
+                    </div>
+                    <label>Cor da regra<input id="visualCardColorRuleColor" type="color" value="#16a34a" /></label>
+                    <button id="addVisualCardColorRuleBtn" type="button" class="btn ghost full-width">Adicionar regra</button>
+                    <div id="visualCardColorRulesList" class="card-color-rules-list empty-state small">Nenhuma regra dinâmica.</div>
+                    <button id="resetVisualCardFormattingBtn" type="button" class="btn ghost full-width">Restaurar configurações do cartão</button>
+                  </section>
+                  <p class="mini-help">As fontes respondem imediatamente. O ajuste autom&aacute;tico reduz somente quando for necess&aacute;rio para evitar corte ou rolagem.</p>
+                </div>
+              </details>
+              <details class="format-card">
+                <summary><span>Efeitos</span></summary>
+                <div class="format-card-body">
+                  <label>
+                    Tema da página
+                    <select id="reportThemeSelect">
+                      <option value="light">Claro</option>
+                      <option value="dark">Escuro</option>
+                      <option value="executive">Executivo</option>
+                    </select>
+                  </label>
+                  <div class="format-color-grid">
+                    <label>Fundo<input id="visualBgColor" type="color" value="#ffffff" /></label>
+                    <label>Texto<input id="visualTextColor" type="color" value="#0f172a" /></label>
+                    <label>Destaque<input id="visualAccentColor" type="color" value="#2563eb" /></label>
+                  </div>
+                  <div class="format-two-cols">
+                    <label>Opacidade<input id="visualCardOpacity" type="number" min="20" max="100" value="100" /></label>
+                    <label>Raio da borda<input id="visualBorderRadius" type="number" min="0" max="32" value="14" /></label>
+                  </div>
+                  <label class="inline-toggle"><input id="visualBorderToggle" type="checkbox" checked /> Mostrar borda</label>
+                  <div class="format-two-cols">
+                    <label>Cor borda<input id="visualBorderColor" type="color" value="#2563eb" /></label>
+                    <label>Espessura<input id="visualBorderWidth" type="number" min="0" max="8" value="1" /></label>
+                  </div>
+                  <label class="inline-toggle"><input id="visualShadowToggle" type="checkbox" checked /> Mostrar sombra</label>
+                  <label>Espaçamento interno<input id="visualInnerPadding" type="number" min="0" max="32" value="8" /></label>
+                  <label>Fonte
+                    <select id="visualFontFamily">
+                      <option value="Inter, Segoe UI, Arial, sans-serif">Inter / Segoe</option>
+                      <option value="Segoe UI, Arial, sans-serif">Segoe UI</option>
+                      <option value="Arial, sans-serif">Arial</option>
+                      <option value="Georgia, serif">Georgia</option>
+                      <option value="Roboto, Arial, sans-serif">Roboto</option>
+                    </select>
+                  </label>
+                </div>
+              </details>
+
+              <details class="format-card">
+                <summary><span>Visual</span></summary>
+                <div class="format-card-body">
+                  <label class="inline-toggle"><input id="visualDataLabelsToggle" type="checkbox" checked /> Rótulos de dados</label>
+                  <label class="inline-toggle"><input id="visualLegendToggle" type="checkbox" checked /> Mostrar legenda</label>
+                  <label class="inline-toggle"><input id="visualShowPercentToggle" type="checkbox" /> Mostrar porcentagem</label>
+                  <label>Casas decimais<input id="visualNumberDecimals" type="number" min="0" max="6" value="2" /></label>
+                  <div class="format-two-cols">
+                    <label>Prefixo<input id="visualNumberPrefix" placeholder="R$" /></label>
+                    <label>Sufixo<input id="visualNumberSuffix" placeholder="%" /></label>
+                  </div>
+                </div>
+              </details>
+
+              <details class="format-card" id="formatCardChart" style="display:none">
+                <summary><span>Gráfico</span></summary>
+                <div class="format-card-body">
+                  <label>Cores das fatias</label>
+                  <div class="format-color-grid" id="chartPieColorsGrid">
+                    <label>1ª<input id="chartPieColor1" type="color" value="#2563eb" /></label>
+                    <label>2ª<input id="chartPieColor2" type="color" value="#f97316" /></label>
+                    <label>3ª<input id="chartPieColor3" type="color" value="#22c55e" /></label>
+                    <label>4ª<input id="chartPieColor4" type="color" value="#a855f7" /></label>
+                    <label>5ª<input id="chartPieColor5" type="color" value="#ef4444" /></label>
+                    <label>6ª<input id="chartPieColor6" type="color" value="#06b6d4" /></label>
+                    <label>7ª<input id="chartPieColor7" type="color" value="#eab308" /></label>
+                    <label>8ª<input id="chartPieColor8" type="color" value="#ec4899" /></label>
+                  </div>
+                  <label class="inline-toggle"><input id="chartPieShowLabels" type="checkbox" checked /> Rótulos de dados</label>
+                  <label>Posição do rótulo
+                    <select id="chartPieLabelPos">
+                      <option value="outside">Fora da fatia</option>
+                      <option value="inside">Dentro da fatia</option>
+                    </select>
+                  </label>
+                  <label>Posição da legenda
+                    <select id="chartPieLegendPos">
+                      <option value="bottom">Abaixo</option>
+                      <option value="top">Acima</option>
+                      <option value="left">Esquerda</option>
+                      <option value="right">Direita</option>
+                    </select>
+                  </label>
+                  <div class="format-two-cols">
+                    <label>Raio externo %<input id="chartPieOuterRadius" type="number" min="40" max="95" value="70" /></label>
+                    <label>Raio interno % (rosca)<input id="chartPieInnerRadius" type="number" min="0" max="80" value="45" /></label>
+                  </div>
+                  <div id="chartFunnelOptions">
+                    <label>Referência 100% (funil)
+                      <select id="chartFunnelReference">
+                        <option value="">Automático (maior valor)</option>
+                      </select>
+                    </label>
+                    <label>Formato do eixo inferior
+                      <select id="chartFunnelAxisMode">
+                        <option value="currency">Valor em R$</option>
+                        <option value="percent">Porcentagem</option>
+                      </select>
+                    </label>
+                    <label>Rótulo ao lado das barras
+                      <select id="chartFunnelLabelMode">
+                        <option value="value">Somente valor</option>
+                        <option value="percent">Somente porcentagem</option>
+                        <option value="name">Somente nome do campo</option>
+                        <option value="nameValue">Nome + valor</option>
+                        <option value="namePercent">Nome + porcentagem</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label>Espaço entre fatias<input id="chartPiePadAngle" type="number" min="0" max="8" value="1" placeholder="0-8 graus" /></label>
+                </div>
+              </details>
+
+              <details class="format-card" id="formatCardTable">
+                <summary><span id="visualTableFormatCardTitle">Tabela</span></summary>
+                <div class="format-card-body">
+                  <label>Densidade
+                    <select id="visualTableDensity">
+                      <option value="compact">Compacta</option>
+                      <option value="normal">Normal</option>
+                      <option value="comfortable">Confortável</option>
+                    </select>
+                  </label>
+                  <div class="format-color-grid format-color-grid-single">
+                    <label>Fundo do cabeçalho<input id="visualHeaderBgColor" type="color" value="#eef4fb" /></label>
+                    <label>Fundo do rodapé<input id="visualFooterBgColor" type="color" value="#eef4fb" /></label>
+                  </div>
+                  <div class="format-two-cols">
+                    <label>Tam. cabeçalho<input id="visualHeaderFontSize" type="number" min="9" max="24" value="12" /></label>
+                    <label>Tam. linhas<input id="visualBodyFontSize" type="number" min="9" max="24" value="12" /></label>
+                  </div>
+                  <div class="table-alignment-editor">
+                    <label>Coluna para alterar
+                      <select id="visualTableAlignmentColumn">
+                        <option value="">Todos</option>
+                      </select>
+                    </label>
+                    <label>Cor do título da coluna<input id="visualHeaderTextColor" type="color" value="#172033" /></label>
+                    <label>Cor do texto do rodapé<input id="visualFooterTextColor" type="color" value="#172033" /></label>
+                    <div class="format-two-cols">
+                      <label class="alignment-field"><span>Alinhar cabeçalho</span>
+                        <span class="alignment-button-group" role="group" aria-label="Alinhamento do cabeçalho">
+                          <button type="button" class="alignment-choice alignment-left" data-alignment-target="visualHeaderTextAlign" data-alignment-value="left" aria-label="Alinhar cabeçalho à esquerda" title="Esquerda" aria-pressed="true"></button>
+                          <button type="button" class="alignment-choice alignment-center" data-alignment-target="visualHeaderTextAlign" data-alignment-value="center" aria-label="Centralizar cabeçalho" title="Centro" aria-pressed="false"></button>
+                          <button type="button" class="alignment-choice alignment-right" data-alignment-target="visualHeaderTextAlign" data-alignment-value="right" aria-label="Alinhar cabeçalho à direita" title="Direita" aria-pressed="false"></button>
+                        </span>
+                        <select id="visualHeaderTextAlign" class="alignment-native-select" hidden tabindex="-1" aria-hidden="true">
+                          <option value="left">Esquerda</option>
+                          <option value="center">Centro</option>
+                          <option value="right">Direita</option>
+                        </select>
+                      </label>
+                      <label class="alignment-field"><span>Alinhar linhas</span>
+                        <span class="alignment-button-group" role="group" aria-label="Alinhamento das linhas">
+                          <button type="button" class="alignment-choice alignment-left" data-alignment-target="visualTextAlign" data-alignment-value="left" aria-label="Alinhar linhas à esquerda" title="Esquerda" aria-pressed="true"></button>
+                          <button type="button" class="alignment-choice alignment-center" data-alignment-target="visualTextAlign" data-alignment-value="center" aria-label="Centralizar linhas" title="Centro" aria-pressed="false"></button>
+                          <button type="button" class="alignment-choice alignment-right" data-alignment-target="visualTextAlign" data-alignment-value="right" aria-label="Alinhar linhas à direita" title="Direita" aria-pressed="false"></button>
+                        </span>
+                        <select id="visualTextAlign" class="alignment-native-select" hidden tabindex="-1" aria-hidden="true">
+                          <option value="left">Esquerda</option>
+                          <option value="center">Centro</option>
+                          <option value="right">Direita</option>
+                        </select>
+                      </label>
+                    </div>
+                    <label class="check-label"><input id="visualHeaderBoldToggle" type="checkbox" checked /> Título da coluna em negrito</label>
+                    <button id="resetVisualTableColumnAlignmentBtn" type="button" class="btn ghost full-width table-alignment-reset" hidden>Usar padrão geral</button>
+                  </div>
+                  <label class="check-label"><input type="checkbox" id="visualTableWordWrap" checked /> Quebra de linha de texto longo</label>
+                  <label class="inline-toggle"><input id="visualZebraRowsToggle" type="checkbox" checked /> Linhas alternadas</label>
+                  <label class="inline-toggle"><input id="visualGridToggle" type="checkbox" checked /> Linhas de grade</label>
+                  <label class="inline-toggle"><input id="visualHideZeroRowsToggle" type="checkbox" /> Ocultar linhas com valor 0</label>
+                </div>
+              </details>
+
+              <details class="format-card column-rules-card" id="formatCardColumnRules">
+                <summary><span>Formatação por coluna</span></summary>
+                <div class="format-card-body column-rules-editor">
+                  <label class="column-rule-field-label">Coluna da tabela
+                    <select id="visualColumnFormatField"></select>
+                  </label>
+                  <div id="visualColumnRuleEmpty" class="column-rule-empty" hidden>Adicione uma coluna ao visual para personalizá-la.</div>
+                  <div id="visualColumnRuleControls">
+                    <label class="column-rule-master-toggle"><input id="visualColumnRulesEnabled" type="checkbox" /> Ativar personalização desta coluna</label>
+
+                    <section class="column-rule-section" data-column-rule-section="defaultColors">
+                      <div class="column-rule-section-title"><span class="column-rule-section-icon">A</span><strong>Cor da coluna</strong></div>
+                      <label class="inline-toggle"><input id="visualColumnDefaultColorsEnabled" type="checkbox" /> Aplicar em todos os valores</label>
+                      <div class="format-two-cols">
+                        <label>Texto<input id="visualColumnDefaultTextColor" type="color" value="#0f172a" /></label>
+                        <label>Fundo<input id="visualColumnDefaultBgColor" type="color" value="#ffffff" /></label>
+                      </div>
+                    </section>
+
+                    <section class="column-rule-section" data-column-rule-section="valueColors">
+                      <div class="column-rule-section-title"><span class="column-rule-section-icon">±</span><strong>Cores por valor</strong></div>
+                      <label class="inline-toggle"><input id="visualColumnValueColorsEnabled" type="checkbox" /> Diferenciar negativos, zero e positivos</label>
+                      <div class="column-value-rule negative">
+                        <span class="column-value-rule-name">Negativo</span>
+                        <label>Texto<input id="visualColumnNegativeTextColor" type="color" value="#b91c1c" /></label>
+                        <label>Fundo<input id="visualColumnNegativeBgColor" type="color" value="#fef2f2" /></label>
+                      </div>
+                      <div class="column-value-rule zero">
+                        <span class="column-value-rule-name">Zero</span>
+                        <label>Texto<input id="visualColumnZeroTextColor" type="color" value="#475569" /></label>
+                        <label>Fundo<input id="visualColumnZeroBgColor" type="color" value="#f8fafc" /></label>
+                      </div>
+                      <div class="column-value-rule positive">
+                        <span class="column-value-rule-name">Positivo</span>
+                        <label>Texto<input id="visualColumnPositiveTextColor" type="color" value="#166534" /></label>
+                        <label>Fundo<input id="visualColumnPositiveBgColor" type="color" value="#f0fdf4" /></label>
+                      </div>
+                    </section>
+
+                    <section class="column-rule-section" data-column-rule-section="icons">
+                      <div class="column-rule-section-title"><span class="column-rule-section-icon">↓</span><strong>Ícones de indicador</strong></div>
+                      <label class="inline-toggle"><input id="visualColumnIconsEnabled" type="checkbox" /> Mostrar ícones conforme o valor</label>
+                      <label>Posição do ícone
+                        <select id="visualColumnIconPosition">
+                          <option value="before">Antes do valor</option>
+                          <option value="after">Depois do valor</option>
+                          <option value="only">Somente o ícone</option>
+                        </select>
+                      </label>
+                      <div class="column-icon-rule negative">
+                        <span>Negativo</span>
+                        <select id="visualColumnNegativeIcon">
+                          <option value="arrow-down">↓ Seta para baixo</option>
+                          <option value="triangle-down">▼ Triângulo para baixo</option>
+                          <option value="minus">− Sinal negativo</option>
+                          <option value="none">Sem ícone</option>
+                        </select>
+                        <input id="visualColumnNegativeIconColor" type="color" value="#dc2626" title="Cor do ícone negativo" />
+                      </div>
+                      <div class="column-icon-rule zero">
+                        <span>Zero</span>
+                        <select id="visualColumnZeroIcon">
+                          <option value="none">Sem ícone</option>
+                          <option value="circle">● Círculo</option>
+                          <option value="dash">— Traço</option>
+                        </select>
+                        <input id="visualColumnZeroIconColor" type="color" value="#64748b" title="Cor do ícone de zero" />
+                      </div>
+                      <div class="column-icon-rule positive">
+                        <span>Positivo</span>
+                        <select id="visualColumnPositiveIcon">
+                          <option value="arrow-up">↑ Seta para cima</option>
+                          <option value="triangle-up">▲ Triângulo para cima</option>
+                          <option value="plus">+ Sinal positivo</option>
+                          <option value="none">Sem ícone</option>
+                        </select>
+                        <input id="visualColumnPositiveIconColor" type="color" value="#16a34a" title="Cor do ícone positivo" />
+                      </div>
+                    </section>
+
+                    <section class="column-rule-section" data-column-rule-section="dataBars">
+                      <div class="column-rule-section-title"><span class="column-rule-section-icon">▰</span><strong>Barras de dados</strong></div>
+                      <label class="inline-toggle"><input id="visualColumnDataBarsEnabled" type="checkbox" /> Mostrar barra proporcional</label>
+                      <div class="format-two-cols">
+                        <label>Positiva<input id="visualColumnPositiveBarColor" type="color" value="#22c55e" /></label>
+                        <label>Negativa<input id="visualColumnNegativeBarColor" type="color" value="#ef4444" /></label>
+                      </div>
+                      <label class="inline-toggle"><input id="visualColumnDataBarShowValue" type="checkbox" checked /> Manter valor visível</label>
+                    </section>
+
+                    <button id="resetVisualColumnRulesBtn" type="button" class="btn ghost full-width column-rule-reset">Restaurar esta coluna</button>
+                  </div>
+                </div>
+              </details>
+
+              <div class="format-actions-grid">
+                <button id="applyVisualFormatBtn" type="button" class="btn ghost">Aplicar</button>
+                <button id="resetVisualFormatBtn" type="button" class="btn ghost">Limpar</button>
+                <button id="copyVisualFormatBtn" type="button" class="btn ghost">Copiar</button>
+                <button id="pasteVisualFormatBtn" type="button" class="btn ghost">Colar</button>
+              </div>
+            </div>
+
+            <div class="field-bucket visual-filter-section" data-visual-pane-section="build">
+              <h4>Filtros neste visual</h4>
+              <div class="empty-state" id="visualFilterEmpty" style="display:none">Adicionar campos</div>
+              <div class="visual-filter-drop-surface" data-field-drop-target="filter" id="visualDropFilter">
+                <div class="visual-filter-cards" id="visualFilterCards"></div>
+              </div>
+            </div>
+
+            <div class="field-bucket" data-visual-pane-section="build">
+              <h4>Filtros nesta página</h4>
+              <div class="visual-field-drop-grid" id="pageFilterDropGrid">
+                <div class="visual-field-drop" data-field-drop-target="pageFilter" id="pageFilterDropZone">
+                  <strong data-field-drop-value="pageFilter">Adicionar campos</strong>
+                </div>
+              </div>
+              <div class="visual-filter-cards" id="pageFilterCards"></div>
+            </div>
+
+            <div class="field-bucket" data-visual-pane-section="build">
+              <h4>Filtros em todas as páginas</h4>
+              <div class="visual-field-drop-grid" id="allPagesFilterDropGrid">
+                <div class="visual-field-drop" data-field-drop-target="allPagesFilter" id="allPagesFilterDropZone">
+                  <strong data-field-drop-value="allPagesFilter">Adicionar campos</strong>
+                </div>
+              </div>
+              <div class="visual-filter-cards" id="allPagesFilterCards"></div>
+            </div>
+
+            <div class="field-bucket visual-analytics-pane" id="visualAnalyticsPane" data-visual-pane-section="analytics">
+              <h4>Análise</h4>
+              <p class="mini-help">Opções preparadas para drill-through, referência e análise do visual.</p>
+              <div class="analytics-placeholder">
+                <b>Drill-through</b>
+                <label class="inline-toggle"><input type="checkbox" id="visualDrillKeepFiltersToggle" checked /> Manter todos os filtros</label>
+                <button type="button" class="btn ghost full-width" id="visualAnalyzeSelectionBtn">Analisar seleção</button>
+                <small>Use esta aba para recursos analíticos do visual. Novas opções serão adicionadas sem afetar a tabela/matriz.</small>
+              </div>
+            </div>
+          </aside>
+
+          <aside class="powerbi-side-panel data-pane" id="dataPane">
+            <div class="pane-title">
+              <h3>Dados</h3>
+              <button class="pane-collapse-btn" type="button" data-collapse-pane="dataPane" title="Retrair/expandir Dados">»</button>
+            </div>
+            <input id="dataSearchInput" class="search-input" placeholder="Pesquisar" />
+            <select id="builderTableSelect" hidden aria-hidden="true" tabindex="-1"></select>
+            <div id="builderFieldList" class="field-list powerbi-field-list empty-state">Carregando tabelas e views...</div>
+          </aside>
+        </div>
+      </section>
+
+
+      <section id="modelTab" class="tab" data-admin-only>
+        <!-- Barra superior moderna -->
+        <div class="model-topbar">
+          <div class="model-topbar-left">
+            <div class="model-topbar-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg>
+            </div>
+            <h2>Modelo</h2>
+          </div>
+          <div class="model-topbar-right">
+            <div class="model-stats" id="modelStatsBar">
+              <span class="model-stat" id="modelStatTables">0 tabelas</span>
+              <span class="model-stat" id="modelStatCols">0 colunas</span>
+              <span class="model-stat" id="modelStatRels">0 rel</span>
+              <span class="model-stat" id="modelStatMeas">0 medidas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alertas de erros no modelo -->
+        <div id="modelErrorsContainer" class="model-errors-container" style="display:none"></div>
+
+        <!-- Grid de cards das tabelas -->
+        <div class="model-section">
+          <div class="model-section-head">
+            <div class="model-section-head-left">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              <h3>Tabelas do modelo</h3>
+            </div>
+            <button id="modelToggleCardsBtn" class="btn mini ghost" title="Expandir/recolher cards">&minus;</button>
+          </div>
+          <div id="modelCardsGrid" class="model-cards-grid empty-state">Carregando tabelas do modelo...</div>
+        </div>
+
+        <!-- Sub-navegação por abas -->
+        <div class="model-subtabs" id="modelSubtabs">
+          <button class="model-subtab active" data-model-subtab="columns">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="13" height="6" rx="1"/><rect x="2" y="1" width="6" height="6" rx="1"/><rect x="9" y="13" width="13" height="6" rx="1"/><rect x="2" y="11" width="6" height="6" rx="1"/></svg>
+            Colunas
+          </button>
+          <button class="model-subtab" data-model-subtab="relationships">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7"/><circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/></svg>
+            Relacionamentos
+          </button>
+          <button class="model-subtab" data-model-subtab="measures">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15l4-4 4 4 4-4 4 4"/><path d="M4 21V9"/></svg>
+            Medidas DAX
+          </button>
+        </div>
+
+        <!-- Painel Colunas -->
+        <div class="model-subpanel active" id="modelSubPanelColumns">
+          <div class="model-subpanel-grid">
+            <div class="panel model-panel-source">
+              <div class="panel-head compact-head">
+                <h3>Origem</h3>
+                <span class="badge info">selecione a tabela</span>
+              </div>
+              <label>
+                Tabela ou view
+                <select id="modelResourceSelect"></select>
+              </label>
+              <div id="modelColumnList" class="column-picker empty-state">Selecione uma tabela ou view.</div>
+            </div>
+            <div class="panel model-panel-dest">
+              <div class="panel-head compact-head">
+                <h3>Colunas selecionadas</h3>
+                <span class="meta" id="modelSelColMeta">dimensões do relatório</span>
+              </div>
+              <div id="modelSelectedColumns" class="model-list empty-state">Nenhuma coluna selecionada.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Painel Relacionamentos -->
+        <div class="model-subpanel" id="modelSubPanelRelationships">
+          <div class="model-subpanel-grid model-rel-layout">
+            <div class="panel model-panel-source">
+              <div class="panel-head compact-head">
+                <h3>Novo relacionamento</h3>
+              </div>
+              <div class="form-grid compact model-rel-form">
+                <label>Tabela origem <select id="relFromTable" disabled></select></label>
+                <label>Coluna origem <select id="relFromColumn" disabled></select></label>
+                <label>Tabela destino <select id="relToTable" disabled></select></label>
+                <label>Coluna destino <select id="relToColumn" disabled></select></label>
+                <label>Tipo de junção <select id="relJoinType" disabled>
+                  <option value="LEFT">LEFT - manter origem</option>
+                  <option value="INNER">INNER - apenas correspondentes</option>
+                </select></label>
+              </div>
+            </div>
+            <div class="panel model-panel-dest">
+              <div class="panel-head compact-head">
+                <h3>Relacionamentos criados</h3>
+                <span class="meta" id="modelRelCount"></span>
+              </div>
+              <div id="relationshipList" class="model-list empty-state">Nenhum relacionamento criado.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Painel Medidas DAX -->
+        <div class="model-subpanel" id="modelSubPanelMeasures">
+          <div class="model-subpanel-grid model-measures-layout">
+            <div class="panel model-panel-source">
+              <div class="panel-head compact-head">
+                <h3>Medidas Criadas</h3>
+                <div class="model-measure-list-actions">
+                  <span class="meta" id="modelMeasCount"></span>
+                  <button type="button" class="btn ghost compact-btn" id="revalidateSelectedMeasureBtn" title="Revalidar somente a medida selecionada" disabled>Revalidar medida</button>
+                  <button type="button" class="btn ghost compact-btn" id="revalidateAllMeasuresBtn" title="Revalidar todas sem alterar as fórmulas">Revalidar todas</button>
+                </div>
+              </div>
+              <div id="measureList" class="model-measure-cards empty-state">Nenhuma medida criada.</div>
+            </div>
+            <div class="panel model-panel-dest">
+              <div class="panel-head compact-head">
+                <h3>Fórmula</h3>
+              </div>
+              <div id="measureFormulaDisplay" class="measure-formula-display empty-state">Selecione uma medida ao lado para ver sua fórmula.</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="tablesTab" class="tab" data-admin-only>
+        <div class="page-head page-head-dark">
+          <div>
+            <span class="page-head-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4V5Zm2 2v3h4V7H6Zm6 0v3h6V7h-6ZM6 12v5h4v-5H6Zm6 0v5h6v-5h-6Z"/></svg></span>
+            <h2>Visualização</h2>
+          </div>
+          <div class="page-head-actions">
+            <label class="tables-select-label">Tabela:</label>
+            <select id="tablesSelect" class="tables-select">
+              <option value="">Carregando...</option>
+            </select>
+            <button id="reloadTableBtn" class="btn">Recarregar</button>
+          </div>
+        </div>
+
+        <div class="visualizacao-layout">
+          <div id="tableViewerPanel" class="table-viewer-panel">
+          <div class="panel table-view-only-panel">
+            <div id="tableToolbar"></div>
+            <div id="tableResult" class="result table-view-result empty-state">Selecione uma tabela acima para visualizar os dados.</div>
+          </div>
+        </div>
+        <div id="hiddenTableEditControls" class="hidden-edit-controls" aria-hidden="true">
+          <span id="writeStatus" class="badge">visualização</span>
+          <div id="rowFormFields" class="row-form empty-state">Visualização somente leitura.</div>
+          <button id="insertRowBtn" type="button">Inserir como nova</button>
+          <button id="updateRowBtn" type="button">Salvar alteracao</button>
+          <button id="deleteRowBtn" type="button">Excluir linha</button>
+          <button id="clearRowBtn" type="button">Limpar</button>
+        </div>
+        </div>
+      </section>
+
+      <section id="schemaTab" class="tab" data-admin-only>
+        <div class="page-head page-head-dark compact-head insert-data-hero">
+          <div>
+            <span class="page-head-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v3H4V5Zm0 5h7v9H4v-9Zm9 0h7v4h-7v-4Zm0 6h7v3h-7v-3Z"/></svg></span>
+            <h2>Inserir Dados</h2>
+          </div>
+          <div class="actions wrap">
+            <button id="reloadInsertDataBtn" class="btn ghost">Recarregar MySQL</button>
+            <button id="btnGerenciarTop" class="btn secondary">Gerenciar</button>
+            <button id="openManualTableModalBtnTop" class="btn secondary">Inserir manual</button>
+          </div>
+        </div>
+
+        <div class="insert-data-layout professional-insert-layout" id="insertDataLayout">
+          <div class="insert-data-left-col">
+            <div class="panel insert-mysql-panel">
+              <div class="panel-head compact-panel-head">
+                <div>
+                  <p class="eyebrow soft-eyebrow">Banco de dados</p>
+                  <h3>Escolher tabela do MySQL</h3>
+                  <span class="meta">Selecione a tabela física, defina o nome que ela terá no BI WA e adicione ao modelo sem alterar o MySQL.</span>
+                </div>
+                <span id="insertDataStatus" class="badge">somente leitura no MySQL</span>
+              </div>
+              <div class="insert-source-grid">
+                <label>
+                  Tabela/View de origem
+                  <select id="insertSourceTableSelect"></select>
+                </label>
+                <label>
+                  Nome no app / modelo
+                  <input id="insertAliasInput" placeholder="ex: Faturamento" />
+                </label>
+                <label>
+                  Observação
+                  <input id="insertNoteInput" placeholder="opcional" />
+                </label>
+                <div class="insert-actions-col">
+                  <button id="previewInsertColumnsBtn" class="btn secondary" type="button">Prévia colunas</button>
+                  <button id="saveImportedTableBtn" class="btn primary" type="button">Trazer tabela</button>
+                  <button id="updateImportedTableBtn" class="btn secondary" type="button" disabled>Atualizar nome</button>
+                  <button id="hideMysqlTableBtn" class="btn danger" type="button">Remover do app</button>
+                </div>
+              </div>
+              <div id="insertColumnsPreview" class="insert-columns-preview empty-state">Selecione uma tabela para ver as colunas.</div>
+            </div>
+
+          <div class="panel modelo-panel">
+            <div class="panel-head compact-panel-head modelo-panel-head">
+              <div>
+                <p class="eyebrow soft-eyebrow">Modelo</p>
+                <h3>Tabelas já inseridas</h3>
+              </div>
+              <div class="modelo-panel-actions" id="modeloPanelActions">
+                <button id="batchSyncAllBtn" class="btn mini primary" type="button">Atualizar</button>
+                <div id="batchSyncStatus" class="batch-sync-status" style="display:none"></div>
+              </div>
+            </div>
+            <div id="importedTablesList" class="imported-tables-grid empty-state">Nenhuma tabela inserida.</div>
+          </div>
+          </div>
+
+          <aside class="panel hidden-tables-panel professional-summary-panel">
+            <div class="panel-head compact-panel-head no-pad-head">
+              <div>
+                <p class="eyebrow soft-eyebrow">Ocultas</p>
+                <h3>Tabelas removidas do app</h3>
+                <span class="meta">Continuam no MySQL, mas nao aparecem no BI WA nem carregam dados.</span>
+              </div>
+            </div>
+            <div id="hiddenTablesList" class="imported-tables-list empty-state">Nenhuma tabela removida do app.</div>
+          </aside>
+        </div>
+
+        <div id="gerenciarManualModal" class="modal-backdrop" hidden>
+          <div class="modal-card small-modal">
+            <div class="modal-head">
+              <div>
+                <p class="eyebrow">Gerenciar</p>
+                <h3>Tabelas manuais existentes</h3>
+                <p class="sub">Acompanhe tabelas criadas no BI WA e adicione novas colunas quando necessário.</p>
+              </div>
+              <button id="closeGerenciarManualModalBtn" class="icon-btn">×</button>
+            </div>
+
+            <label>
+              Tabela manual existente
+              <select id="alterTableSelect"></select>
+            </label>
+
+            <div class="actions wrap compact-actions">
+              <button id="openManualTableBtn" class="btn secondary">Abrir tabela</button>
+              <button id="manualRefreshListBtn" class="btn ghost">Recarregar</button>
+            </div>
+
+            <hr class="soft-separator" />
+
+            <h4>Adicionar coluna</h4>
+            <div class="form-grid one-col compact-form">
+              <label>
+                Nome da coluna
+                <input id="alterColumnName" placeholder="ex: observacao" />
+              </label>
+              <label>
+                Tipo
+                <select id="alterColumnType"></select>
+              </label>
+              <label>
+                Formato
+                <input id="alterColumnFormat" placeholder="ex: R$ #,##0.00 ou DD/MM/AAAA" />
+              </label>
+              <label class="check-label">
+                <input id="alterColumnNullable" type="checkbox" checked />
+                Permitir vazio / NULL
+              </label>
+            </div>
+            <button id="addColumnToTableBtn" class="btn primary full-width">Adicionar coluna</button>
+
+            <div class="notice-inline top-space">
+              Para visualizar os dados, use <b>Tabelas e Views</b>. Para relacionar tabelas no modelo, use <b>Conexões</b>.
+            </div>
+          </div>
+        </div>
+
+        <div id="manualTableModal" class="modal-backdrop" hidden>
+          <div class="modal-card pbix-enter-data">
+            <div class="pbix-enter-data-head">
+              <span class="pbix-enter-data-title">Inserir Dados</span>
+              <button id="closeManualTableModalBtn" class="icon-btn" title="Fechar">&times;</button>
+            </div>
+
+            <div class="pbix-enter-data-config">
+              <label class="pbix-config-label">
+                <span class="pbix-label-text">Nome da tabela</span>
+                <input id="newTableName" class="pbix-table-name-input" placeholder="ex: Metas Vendas" />
+              </label>
+            </div>
+
+            <div class="pbix-enter-data-toolbar">
+              <div class="pbix-toolbar-left">
+                <button id="manualPasteBtn" class="btn mini ghost pbix-toolbar-btn" title="Colar do Excel">&plusmn; Colar</button>
+                <span class="pbix-toolbar-divider"></span>
+                <button id="manualAddRowBtn" class="btn mini ghost pbix-toolbar-btn" title="Adicionar linha">+ Linha</button>
+                <button id="manualAddColumnBtn" class="btn mini ghost pbix-toolbar-btn" title="Adicionar coluna">+ Coluna</button>
+                <span class="pbix-toolbar-divider"></span>
+                <button id="manualUseFirstRowHeaderBtn" class="btn mini ghost pbix-toolbar-btn" title="Usar 1&ordf; linha como cabe&ccedil;alho">&mapstodown; Cabe&ccedil;alho</button>
+                <button id="manualClearBtn" class="btn mini ghost pbix-toolbar-btn" title="Limpar grade">Limpar</button>
+              </div>
+            </div>
+
+            <div id="manualDataGrid" class="pbix-data-grid" aria-label="Grade de cria&ccedil;&atilde;o de tabela"></div>
+
+            <div class="pbix-enter-data-actions">
+              <button id="cancelManualTableModalBtn" class="btn ghost">Cancelar</button>
+              <button id="manualLoadTableBtn" class="btn primary">Carregar</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="manualPasteModal" class="modal-backdrop" hidden>
+          <div class="modal-card small-modal">
+            <div class="modal-head">
+              <div>
+                <p class="eyebrow">Colar dados</p>
+                <h3>Colar dados do Excel</h3>
+              </div>
+              <button id="closeManualPasteModalBtn" class="icon-btn">×</button>
+            </div>
+            <p class="sub">Cole dados separados por tabulação. Se a primeira linha for cabeçalho, marque a opção abaixo.</p>
+            <label>
+              Dados copiados
+              <textarea id="manualPasteText" placeholder="Cole aqui os dados copiados do Excel"></textarea>
+            </label>
+            <label class="check-label">
+              <input id="manualPasteHasHeader" type="checkbox" checked />
+              Primeira linha contém nomes das colunas
+            </label>
+            <div class="actions">
+              <button id="applyManualPasteBtn" class="btn primary">Aplicar na grade</button>
+              <button id="cancelManualPasteBtn" class="btn ghost">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="onlineTab" class="tab" data-admin-only>
+        <div class="page-head page-head-dark compact-head">
+          <div>
+            <span class="page-head-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+            <h2>Construtor Online</h2>
+            <span class="meta">Personalize a aparência da versão Online publicada</span>
+          </div>
+          <div class="actions wrap">
+            <button id="saveOnlineCustomBtn" class="btn primary">Salvar personalização</button>
+            <button id="previewOnlineBtn2" class="btn secondary">Prévia Online</button>
+            <button id="resetOnlineCustomBtn" class="btn ghost">Redefinir</button>
+          </div>
+        </div>
+
+        <div class="online-builder-layout" id="onlineBuilderLayout">
+          <!-- Coluna esquerda: Páginas -->
+          <div class="online-builder-panel">
+            <div class="panel">
+              <div class="panel-head compact-panel-head">
+                <div>
+                  <p class="eyebrow soft-eyebrow">Navegação</p>
+                  <h3>Dashboards do portal</h3>
+                  <span class="meta">Arraste para ordenar. Use ⋮ para renomear, trocar o ícone ou ocultar.</span>
+                </div>
+              </div>
+              <div class="online-pages-list" id="onlinePagesList">
+                <div class="empty-state">Os dashboards criados aparecerão aqui.</div>
+              </div>
+              <p class="online-auto-dashboard-note">As páginas internas de cada relatório são selecionadas no cabeçalho do portal.</p>
+            </div>
+
+          </div>
+
+          <!-- Coluna central: Preview -->
+          <div class="online-builder-preview">
+            <div class="panel">
+              <div class="panel-head compact-panel-head">
+                <div>
+                  <p class="eyebrow soft-eyebrow">Prévia</p>
+                  <h3>Versão Online</h3>
+                  <span class="meta">Simulação de como ficará o portal publicado.</span>
+                </div>
+              </div>
+              <div class="online-preview-frame" id="onlinePreviewFrame">
+                <div class="online-preview-sidebar" id="onlinePreviewSidebar">
+                  <div class="online-preview-brand">
+                    <span id="onlinePreviewBrandName">BI WA</span>
+                  </div>
+                  <div class="online-preview-nav" id="onlinePreviewNav">
+                    <div class="online-preview-nav-item active">
+                      <span class="online-preview-nav-icon">📊</span>
+                      <span>Dashboard</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="online-preview-main">
+                  <div class="online-preview-header" id="onlinePreviewHeader">
+                    <span id="onlinePreviewHeaderTitle">BI WA Online</span>
+                  </div>
+                  <div class="online-preview-content">
+                    <div class="online-preview-placeholder">
+                      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                      <p>Área de Dashboards</p>
+                      <small>Os relatórios publicados aparecerão aqui</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna direita: Tema -->
+          <div class="online-builder-panel">
+            <div class="panel online-compact-panel online-theme-panel">
+              <div class="panel-head compact-panel-head">
+                <div>
+                  <p class="eyebrow soft-eyebrow">Aparência</p>
+                  <h3>Tema e Cores</h3>
+                </div>
+              </div>
+              <div class="form-grid-compact online-theme-controls">
+                <div class="online-color-grid">
+                  <label>
+                    Cor primária
+                    <input id="onlinePrimaryColor" type="color" value="#2563eb" class="compact-color" />
+                  </label>
+                  <label>
+                    Cor de fundo
+                    <input id="onlineBgColor" type="color" value="#f8fafc" class="compact-color" />
+                  </label>
+                  <label>
+                    Fundo sidebar
+                    <input id="onlineSidebarBg" type="color" value="#0f172a" class="compact-color" />
+                  </label>
+                  <label>
+                    Texto sidebar
+                    <input id="onlineSidebarText" type="color" value="#e2e8f0" class="compact-color" />
+                  </label>
+                  <label>
+                    Fundo ativo
+                    <input id="onlineSidebarActiveBg" type="color" value="#1e293b" class="compact-color" />
+                  </label>
+                  <label>
+                    Destaque
+                    <input id="onlineAccentColor" type="color" value="#38bdf8" class="compact-color" />
+                  </label>
+                </div>
+                <label>
+                  Fonte
+                  <select id="onlineFontFamily" class="compact-select">
+                    <option value="Inter, Segoe UI, Arial, sans-serif">Inter (Padrão)</option>
+                    <option value="system-ui, sans-serif">Sistema</option>
+                    <option value="'Segoe UI', Roboto, sans-serif">Segoe UI</option>
+                    <option value="'Roboto', Arial, sans-serif">Roboto</option>
+                    <option value="'Poppins', sans-serif">Poppins</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="panel online-compact-panel online-brand-panel">
+              <div class="panel-head compact-panel-head">
+                <div>
+                  <p class="eyebrow soft-eyebrow">Logo</p>
+                  <h3>Marca</h3>
+                </div>
+              </div>
+              <div class="form-grid-compact online-brand-controls">
+                <div class="online-brand-field-grid">
+                  <label>
+                    Nome da marca
+                    <input id="onlineBrandName" class="compact-input" placeholder="BI WA" />
+                  </label>
+                  <label>
+                    Texto abaixo da logo
+                    <input id="onlineBrandSubtitle" class="compact-input" placeholder="Portal de dashboards" />
+                  </label>
+                </div>
+                <div class="online-logo-import">
+                  <div class="online-logo-preview"><img id="onlineBrandLogoPreview" alt="Prévia da logo" hidden /><span>Logo</span></div>
+                  <div class="online-logo-actions">
+                    <label class="btn secondary mini" for="onlineBrandLogoFile">Importar logo</label>
+                    <input id="onlineBrandLogoFile" type="file" accept="image/*" hidden />
+                    <input id="onlineBrandLogo" type="hidden" value="/logo-bi-wa.png" />
+                    <button id="onlineBrandLogoRemove" class="btn ghost mini" type="button">Remover</button>
+                    <small>PNG, JPG ou WebP de até 700 KB.</small>
+                  </div>
+                </div>
+                <div class="online-brand-field-grid">
+                  <label>
+                    Tamanho do texto (px)
+                    <input id="onlineBrandSubtitleFontSize" type="number" class="compact-input" value="12" min="8" max="32" step="1" />
+                  </label>
+                  <label>
+                    Largura da sidebar (px)
+                    <input id="onlineSidebarWidth" type="number" class="compact-input" value="260" min="180" max="400" />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel online-compact-panel online-layout-panel">
+              <div class="panel-head compact-panel-head">
+                <div>
+                  <p class="eyebrow soft-eyebrow">Layout</p>
+                  <h3>Cabeçalho</h3>
+                </div>
+              </div>
+              <div class="online-header-editor">
+                <label class="online-header-font-control">
+                  <span>Fonte</span>
+                  <span class="online-header-font-row">
+                    <select id="onlineHeaderFontFamily" class="compact-select">
+                      <option value="inherit">Fonte do portal</option>
+                      <option value="'Segoe UI', Arial, sans-serif">Segoe UI</option>
+                      <option value="Inter, Segoe UI, Arial, sans-serif">Inter</option>
+                      <option value="Arial, sans-serif">Arial</option>
+                      <option value="'Roboto', Arial, sans-serif">Roboto</option>
+                      <option value="'Poppins', sans-serif">Poppins</option>
+                    </select>
+                    <input id="onlineHeaderFontSize" type="number" class="compact-input" value="23" min="14" max="36" step="1" aria-label="Tamanho da fonte" />
+                  </span>
+                </label>
+                <div class="online-header-formatting" role="group" aria-label="Formatação do título">
+                  <label title="Negrito"><input id="onlineHeaderBold" type="checkbox" checked /><span><b>B</b></span></label>
+                  <label title="Itálico"><input id="onlineHeaderItalic" type="checkbox" /><span><i>I</i></span></label>
+                  <label title="Sublinhado"><input id="onlineHeaderUnderline" type="checkbox" /><span><u>U</u></span></label>
+                </div>
+                <div class="online-header-color-controls">
+                  <label><span>Cor do texto</span><input id="onlineHeaderText" type="color" value="#ffffff" class="compact-color" /></label>
+                  <label><span>Cor de fundo</span><input id="onlineHeaderBg" type="color" value="#0b1327" class="compact-color" /></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="historyTab" class="tab" data-admin-only>
+        <div class="page-head page-head-dark">
+          <div>
+            <span class="page-head-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 3a9 9 0 0 0-9 9H1l3.9 3.9L8.8 12H6a7 7 0 1 1 7 7c-1.9 0-3.7-.8-5-2.1l-1.4 1.4A9 9 0 1 0 13 3Zm-1 4v5l4.3 2.5.7-1.2-3.5-2.1V7H12Z"/></svg></span>
+            <h2>Histórico</h2>
+          </div>
+          <div class="page-head-actions">
+            <button id="refreshHistoryBtn" class="btn">Atualizar</button>
+            <button id="showEventsBtn" class="btn ghost">Eventos</button>
+          </div>
+        </div>
+        <div id="historyContent">
+          <div class="empty-state">Carregando histórico...</div>
+        </div>
+      </section>
+
+      <section id="settingsTab" class="tab" data-admin-only>
+        <div class="page-head page-head-dark">
+          <div>
+            <span class="page-head-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.4 13.5a7.8 7.8 0 0 0 .1-1.5 7.8 7.8 0 0 0-.1-1.5l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-2.5-1.5L14.2 2h-4l-.4 2.6a7.6 7.6 0 0 0-2.5 1.5l-2.4-1-2 3.4 2 1.5A7.8 7.8 0 0 0 4.8 12c0 .5 0 1 .1 1.5l-2 1.5 2 3.4 2.4-1a7.6 7.6 0 0 0 2.5 1.5l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 2.5-1.5l2.4 1 2-3.4-2.1-1.5ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7Z"/></svg></span>
+            <h2>Configurações</h2>
+          </div>
+          <div class="page-head-actions">
+            <button id="settingsHelpBtn" class="btn ghost" title="Ajuda">?</button>
+          </div>
+        </div>
+
+        <div class="settings-tabs">
+          <button class="settings-tab-btn active" data-settings-tab="mysqlSettingsPanel">MySQL</button>
+          <button class="settings-tab-btn" data-settings-tab="monitoringSettingsPanel">Monitoramento</button>
+          <button class="settings-tab-btn" data-settings-tab="logsSettingsPanel">Logs</button>
+          <button class="settings-tab-btn" data-settings-tab="desktopSettingsPanel">Desktop</button>
+          <button class="settings-tab-btn" data-settings-tab="onlineSettingsPanel">Online</button>
+          <button class="settings-tab-btn" data-settings-tab="vpsSettingsPanel">VPS</button>
+          <button class="settings-tab-btn" data-settings-tab="usersSettingsPanel">Usuários</button>
+        </div>
+
+        <!-- MySQL -->
+        <div id="mysqlSettingsPanel" class="settings-panel active">
+          <div class="settings-grid">
+            <div class="panel">
+              <div class="panel-head"><h3>Conexão MySQL</h3><span class="meta">Desktop/Admin</span></div>
+              <div class="form-grid compact">
+                <label>Host/IP<input id="dbMysqlHost" placeholder="127.0.0.1" /></label>
+                <label>Porta<input id="dbMysqlPort" placeholder="3306" /></label>
+                <label>Base<input id="dbMysqlDatabase" placeholder="nome_da_base" /></label>
+                <label>Usuário<input id="dbMysqlUser" placeholder="bi_admin" /></label>
+                <label>Senha<input id="dbMysqlPassword" type="password" placeholder="deixe em branco para manter" /></label>
+                <label>Limite de conexões<input id="dbConnectionLimit" placeholder="10" /></label>
+                <label class="check-label"><input id="dbMysqlSsl" type="checkbox" /> SSL</label>
+              </div>
+              <div class="actions"><button id="testMysqlBtn" class="btn primary">Salvar e testar</button></div>
+              <p id="desktopDbInfo" class="sub" style="margin-top:8px"></p>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Cache PostgreSQL</h3><span class="meta">Sincronização automática</span></div>
+              <div class="form-grid compact">
+                <label>Sincronizar a cada
+                  <select id="pgCacheSyncInterval">
+                    <option value="0.5">30 segundos</option>
+                    <option value="1">1 minuto</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="10">10 minutos</option>
+                    <option value="15">15 minutos</option>
+                    <option value="30">30 minutos</option>
+                    <option value="60">1 hora</option>
+                  </select>
+                </label>
+                <label>Janela incremental (dias)<input id="pgCacheRecentDays" type="number" min="1" max="730" value="90" style="width:80px" /></label>
+              </div>
+              <div class="actions"><button id="savePgCacheIntervalBtn" class="btn primary">Salvar</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monitoramento -->
+        <div id="monitoringSettingsPanel" class="settings-panel">
+          <div class="settings-monitor-toolbar">
+            <div>
+              <strong>Saúde do aplicativo</strong>
+              <small id="settingsMonitoringUpdatedAt">Aguardando consulta...</small>
+            </div>
+            <button id="refreshSettingsMonitoringBtn" class="btn primary" type="button">Atualizar monitor</button>
+          </div>
+          <div id="settingsMonitoringContent" class="settings-monitor-grid">
+            <div class="monitor-status-card loading"><span>Carregando monitoramento...</span></div>
+          </div>
+        </div>
+
+        <!-- Logs -->
+        <div id="logsSettingsPanel" class="settings-panel">
+          <div class="settings-monitor-toolbar">
+            <div>
+              <strong>Logs do aplicativo</strong>
+              <small id="settingsLogsUpdatedAt">Os dados sensíveis são ocultados automaticamente.</small>
+            </div>
+            <div class="settings-log-actions">
+              <label>Exibir
+                <select id="settingsLogType">
+                  <option value="errors">Somente erros</option>
+                  <option value="recent">Todos os eventos</option>
+                </select>
+              </label>
+              <label>Linhas
+                <select id="settingsLogLines">
+                  <option value="50">50</option>
+                  <option value="100" selected>100</option>
+                  <option value="200">200</option>
+                </select>
+              </label>
+              <button id="refreshSettingsLogsBtn" class="btn primary" type="button">Atualizar logs</button>
+            </div>
+          </div>
+          <pre id="settingsLogsContent" class="settings-log-viewer">Nenhum log carregado.</pre>
+        </div>
+
+        <!-- Desktop -->
+        <div id="desktopSettingsPanel" class="settings-panel">
+          <div class="settings-grid">
+            <div class="panel">
+              <div class="panel-head"><h3>Permissões</h3><span class="meta">Desktop/Admin</span></div>
+              <label class="check-label"><input id="permTableWrites" type="checkbox" /> Inserir, editar e excluir registros</label>
+              <label class="check-label"><input id="permSchemaChanges" type="checkbox" /> Criar tabelas e colunas</label>
+              <label class="check-label"><input id="permReportEditing" type="checkbox" /> Criar e editar relatórios</label>
+              <label class="check-label"><input id="permPublishOnline" type="checkbox" /> Publicar na versão online</label>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Admin Local</h3><span class="meta">Login do Desktop</span></div>
+              <div class="form-grid compact">
+                <label>Usuário<input id="settingAdminUser" placeholder="admin" /></label>
+                <label>Senha<input id="settingAdminPassword" type="password" placeholder="deixe em branco" /></label>
+              </div>
+              <div class="actions"><button id="saveDesktopSettingsBtn" class="btn primary">Salvar</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Online -->
+        <div id="onlineSettingsPanel" class="settings-panel">
+          <div class="settings-grid">
+            <div class="panel">
+              <div class="panel-head"><h3>Publicação Online</h3><span class="meta">Power Pages / Web</span></div>
+              <p class="sub" style="margin:0 0 12px">A versão online usa o <b>cache PostgreSQL</b> (já sincronizado). Não depende de MySQL externo.</p>
+              <div class="form-grid compact">
+                <label>URL pública<input id="settingOnlineUrl" placeholder="https://bi.seudominio.com" /></label>
+                <label>Porta web<input id="webPort" placeholder="3000" /></label>
+                <label>Token de sincronização<input id="settingSyncToken" type="password" placeholder="deixe em branco para manter" /></label>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Atualização</h3><span class="meta">Dashboards em tempo real</span></div>
+              <div class="form-grid compact">
+                <label>Atualização dashboards (s)<input id="webDefaultRefreshSeconds" type="number" min="5" placeholder="15" /></label>
+                <label>Push servidor (s)<input id="webServerPushIntervalSeconds" type="number" min="5" placeholder="15" /></label>
+                <label>CORS Origin<input id="webCorsOrigin" placeholder="https://seudominio.com" /></label>
+              </div>
+            </div>
+          </div>
+          <div class="actions wrap" style="margin-top:14px; gap:8px">
+            <button id="saveSettingsBtn" class="btn primary">Salvar tudo</button>
+            <button id="downloadOnlineEnvBtn" class="btn secondary">Baixar .env online</button>
+            <button id="publishReportsBtn" class="btn">Publicar relatórios</button>
+          </div>
+        </div>
+
+        <!-- VPS -->
+        <div id="vpsSettingsPanel" class="settings-panel">
+          <div class="settings-grid">
+            <div class="panel">
+              <div class="panel-head"><h3>Conexão VPS</h3><span class="meta">SSH para deploy automático</span></div>
+              <p class="sub" style="margin:0 0 12px">Configure o acesso SSH ao seu servidor VPS. O app fará o deploy completo: instalar Docker + Nginx, configurar SSL e iniciar a versão online.</p>
+              <div class="form-grid compact">
+                <label>Domínio<input id="vpsDomain" placeholder="api.rlshortifruti.com" /></label>
+                <label>SSH Host / IP<input id="vpsHost" placeholder="IP da VPS" /></label>
+                <label>SSH Porta<input id="vpsPort" type="number" value="22" /></label>
+                <label>SSH Usuário<input id="vpsUser" value="root" /></label>
+                <label>Chave SSH (.pem)<input id="vpsKeyPath" placeholder="C:\Users\...\chave.pem" /></label>
+                <label>Diretório app<input id="vpsAppPath" value="/opt/biwa" /></label>
+              </div>
+              <div class="actions" style="margin-top:12px; gap:8px">
+                <button id="deployTestSshBtn" class="btn secondary">Testar SSH</button>
+                <button id="deployRunBtn" class="btn primary">Deploy completo na VPS</button>
+                <span id="vpsStatus" style="font-size:12px;color:var(--muted);align-self:center"></span>
+              </div>
+            </div>
+            <div class="panel" style="grid-column:span 2">
+              <div class="panel-head"><h3>Log do deploy</h3><span class="meta">Acompanhe o progresso</span></div>
+              <textarea id="deployLog" class="deploy-log" readonly placeholder="Clique em 'Deploy completo na VPS' para iniciar..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Usuários -->
+        <div id="usersSettingsPanel" class="settings-panel">
+          <div class="settings-grid">
+            <div class="panel">
+              <div class="panel-head"><h3>Cadastrar Usuário Online</h3><span class="meta">Visualizadores da versão web</span></div>
+              <div class="form-grid compact">
+                <label>Nome<input id="onlineUserName" placeholder="João Silva" /></label>
+                <label>Login<input id="onlineUsername" placeholder="joao" /></label>
+                <label>Senha<input id="onlineUserPassword" type="password" placeholder="senha" /></label>
+              </div>
+              <div class="user-data-security-editor">
+                <div>
+                  <strong>Restrição obrigatória de dados</strong>
+                  <small>Opcional. Exemplo: Empresas → Empresa → 3. Essa regra não pode ser removida pelo usuário.</small>
+                </div>
+                <div class="form-grid compact">
+                  <label>Tabela<select id="onlineUserDataFilterTable"><option value="">Selecione a tabela...</option></select></label>
+                  <label>Campo<select id="onlineUserDataFilterField" disabled><option value="">Selecione primeiro a tabela...</option></select></label>
+                  <label>Valor permitido<input id="onlineUserDataFilterValue" list="onlineUserDataFilterValues" placeholder="Ex.: 3" /><datalist id="onlineUserDataFilterValues"></datalist></label>
+                </div>
+              </div>
+              <div class="actions"><button id="addOnlineUserBtn" class="btn primary">Cadastrar</button></div>
+            </div>
+            <div class="panel" style="grid-column: span 2">
+              <div class="panel-head">
+                <h3>Usuários Cadastrados</h3>
+                <button id="saveUsersBtn" class="btn primary">Salvar alterações</button>
+              </div>
+              <div id="onlineUsersList" class="online-users-list empty-state small">Nenhum usuário cadastrado.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+
+  <div id="onlineFilterModal" class="modal-backdrop" hidden>
+    <div class="modal-card online-filter-modal-card" role="dialog" aria-modal="true" aria-labelledby="onlineFilterModalTitle">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Filtros do usuário online</p>
+          <h3 id="onlineFilterModalTitle">Configurar popup de filtros</h3>
+          <p class="sub">No Admin, arraste o visual <b>Filtro</b> para a área abaixo e escolha os campos. Na versão online, o botão <b>Filtros</b> abre este popup para o usuário filtrar os dashboards.</p>
+        </div>
+        <button id="closeOnlineFilterModalBtn" class="icon-btn" type="button" title="Fechar">×</button>
+      </div>
+
+      <div class="filter-popup-designer-layout">
+        <div class="filter-popup-canvas" id="onlineFilterDropZone">
+          <div class="filter-popup-title-row">
+            <div>
+              <strong>Popup de filtros</strong>
+              <small>Monte aqui os filtros que o usuário verá no dashboard.</small>
+            </div>
+            <span class="badge">arraste o visual Filtro aqui</span>
+          </div>
+          <div id="onlineFilterSummary" class="online-filter-summary empty-state small">Nenhum filtro liberado.</div>
+          <div id="onlineFilterList" class="online-filter-list empty-state small">Nenhum filtro liberado para o usuário online.</div>
+        </div>
+        <div class="filter-popup-form">
+          <label>
+            Tabela / View / Nativa
+            <select id="onlineFilterSourceSelect"></select>
+          </label>
+          <label>
+            Campo liberado
+            <select id="onlineFilterFieldSelect"></select>
+          </label>
+          <label>
+            Nome exibido
+            <input id="onlineFilterLabelInput" placeholder="Ex: Data, Cliente, Produto" />
+          </label>
+          <label>
+            Modelo de filtro
+            <select id="onlineFilterUiSelect">
+              <option value="dropdown">Suspenso</option>
+              <option value="between">Entre</option>
+              <option value="relativeToday">Hoje</option>
+              <option value="search">Pesquisa</option>
+              <option value="list">Lista</option>
+            </select>
+          </label>
+          <label class="online-filter-multi-selection">
+            <input id="onlineFilterMultiSelectInput" type="checkbox" />
+            Permitir seleção múltipla
+          </label>
+          <label>
+            Operador aplicado
+            <select id="onlineFilterOperatorSelect">
+              <option value="=">igual</option>
+              <option value="LIKE">contém</option>
+              <option value=">=">maior ou igual</option>
+              <option value="<=">menor ou igual</option>
+              <option value="BETWEEN">entre</option>
+            </select>
+          </label>
+          <label>
+            Tipo de campo
+            <select id="onlineFilterTypeSelect">
+              <option value="text">Texto</option>
+              <option value="number">Número</option>
+              <option value="date">Data</option>
+            </select>
+          </label>
+          <label>
+            Escopo do filtro
+            <select id="onlineFilterScopeSelect">
+              <option value="global">Global</option>
+              <option value="report">Relatório atual</option>
+              <option value="page">Página específica</option>
+            </select>
+          </label>
+          <label>
+            Página do filtro
+            <select id="onlineFilterTargetSelect" disabled>
+              <option value="">Relatório atual inteiro</option>
+            </select>
+          </label>
+          <label class="online-filter-required-selection">
+            <input id="onlineFilterRequireSelectionInput" type="checkbox" />
+            Exigir uma seleção somente em páginas específicas
+          </label>
+          <fieldset id="onlineFilterRequiredPagesField" class="online-filter-required-pages" hidden>
+            <legend>Páginas sem a opção "Todos"</legend>
+            <div id="onlineFilterRequiredPagesList" class="online-filter-required-pages-list"></div>
+            <small>Nas páginas não marcadas, o usuário poderá selecionar "Todos".</small>
+          </fieldset>
+          <button id="addOnlineFilterBtn" type="button" class="btn primary full-width">Aplicar / inserir filtro</button>
+          <div class="online-filter-style-editor">
+            <button id="editOnlineFilterCardStyleBtn" type="button" class="btn ghost full-width">Editar visual dos cards</button>
+            <label class="filter-style-field">
+              Cor do card
+              <input id="onlineFilterCardColorInput" type="color" value="#ffffff" />
+            </label>
+            <label class="filter-style-check">
+              <input id="onlineFilterCardTransparentInput" type="checkbox" />
+              Card transparente
+            </label>
+            <label class="filter-style-field">
+              Fundo do popup
+              <input id="onlineFilterPopupBgInput" type="color" value="#f3f6fb" />
+            </label>
+          </div>
+          <button id="saveOnlineFilterConfigBtn" type="button" class="btn primary full-width" style="margin-top:8px">Salvar configuração dos filtros</button>
+          <p class="mini-help">Clique em Aplicar / inserir para gravar o filtro. Arraste qualquer área livre do card para mover, use a borracha para limpar a seleção, pressione Delete para remover o card e clique em "Salvar" para persistir.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="userAccountMenu" class="user-account-menu" role="menu" hidden>
+    <div class="user-account-summary">
+      <span class="user-avatar large" data-user-avatar>U</span>
+      <div><strong data-user-display-name>Usuário</strong><small data-user-login>@usuario</small></div>
+    </div>
+    <button type="button" role="menuitem" data-edit-profile>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 8a7 7 0 0 0-14 0"/></svg>
+      <span>Editar perfil</span>
+    </button>
+    <button type="button" role="menuitem" class="logout" data-account-logout>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg>
+      <span>Sair</span>
+    </button>
+  </div>
+
+  <div id="profileModal" class="modal-backdrop" hidden>
+    <form id="profileForm" class="modal-card profile-modal-card">
+      <div class="modal-head profile-modal-head">
+        <div class="profile-modal-identity">
+          <span class="user-avatar large" data-user-avatar>U</span>
+          <div><p class="eyebrow">Conta</p><h3>Editar perfil</h3><small id="profileRoleLabel">Perfil conectado</small></div>
+        </div>
+        <button id="closeProfileModalBtn" class="icon-btn" type="button" title="Fechar" aria-label="Fechar">×</button>
+      </div>
+      <div class="profile-form-grid">
+        <label>Nome exibido<input id="profileNameInput" maxlength="120" autocomplete="name" required /></label>
+        <label>Login<input id="profileUsernameInput" maxlength="80" autocomplete="username" required /></label>
+        <label class="profile-form-wide">Senha atual<input id="profileCurrentPasswordInput" type="password" autocomplete="current-password" required /></label>
+        <label>Nova senha <small>Opcional</small><input id="profileNewPasswordInput" type="password" minlength="8" maxlength="128" autocomplete="new-password" /></label>
+        <label>Confirmar nova senha<input id="profileConfirmPasswordInput" type="password" minlength="8" maxlength="128" autocomplete="new-password" /></label>
+      </div>
+      <p id="profileFormError" class="profile-form-error" hidden></p>
+      <div class="profile-modal-actions">
+        <button id="cancelProfileModalBtn" class="btn" type="button">Cancelar</button>
+        <button id="saveProfileBtn" class="btn primary" type="submit">Salvar alterações</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/formatting.js?v=__BIWA_ASSET_VERSION__"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js" defer></script>
+  <script src="/app.js?v=__BIWA_ASSET_VERSION__"></script>
+</body>
+</html>
